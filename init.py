@@ -7,15 +7,14 @@ velocity and pressure variables matrices.
 import numpy as np
 from globalVar import *
 
-u = np.zeros((nx-1, ny))
-v = np.zeros((nx, ny-1))
-p = np.zeros((nx, ny))
+u = np.zeros((nx-1, ny), dtype=np.int)
+v = np.zeros((nx, ny-1), dtype=np.int)
+p = np.zeros((nx, ny), dtype=np.int)
 
 # Create pointers for velocity, u, v
-ind = 0 
+ind = 0
 for j in range(0,ny):
     for i in range(0,nx-1):
-        print(i)
         u[i,j] = ind
         ind += 1
 for j in range(0,ny-1):

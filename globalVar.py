@@ -3,8 +3,6 @@ Created on May 2 2021
 @author: Shehan M. Parmar
 Global variables for NS solver. 
 """
-#global nx, ny, dx, dy, q_size, p_size
-
 with open('inputs.txt', 'r') as inp: 
     
     inputs = {}
