@@ -3,7 +3,8 @@ Created on May 2 2021
 @author: Shehan M. Parmar
 Global variables for NS solver. 
 """
-with open('inputs.txt', 'r') as inp: 
+    
+with open(filename, 'r') as inp: 
     
     inputs = {}
     
@@ -21,4 +22,4 @@ with open('inputs.txt', 'r') as inp:
     dy = Ly/ny
 
     q_size = (nx-1)*ny + nx*(ny-1)
-    p_size = nx*ny-1
+    p_size = nx*ny-1 # subtract one only for pinned pressure values

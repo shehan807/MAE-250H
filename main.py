@@ -6,7 +6,12 @@ Main Navier-Stokes solver
 global nx, ny, u, v, p, dx, dy, q_size, p_size  
 
 from numpy import linalg as LA
+from get_global import *
 from init import *
+get_global('inputs.txt')
+init()
+print(u)
+#from init import *
 import operators as op
 
 # Occasionally, np.arange will include the "stop" value due to rounding/floating
@@ -34,11 +39,9 @@ Zp = np.sin(Xp*Yp)
 
 grad_ex = np.concatenate((grad_x_ex, grad_y_ex), axis=1)
 g_test = np.reshape(Zp, (1,nx*ny))
-g_test = g_test[0, 1:] # exclude pinned value
-q = op.grad(g_test, pinned=True)
+q = op.grad(g_test, pinned=False)
 
 err = q-grad_ex
 L2 = LA.norm(err) / len(err[0])
 Linf = LA.norm(err, ord=np.inf)
-print(err)
 print(dx, dy, dx*dy, L2, Linf)
