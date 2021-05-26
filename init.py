@@ -5,11 +5,8 @@ Initialize pointer arrays to ease coding of
 velocity and pressure variables matrices. 
 """
 import numpy as np
-from get_global import *
 
-def init():
-    
-    get_global('inputs.txt') 
+def init(nx, ny, pinned = True):
     
     u = np.zeros((nx-1, ny), dtype=np.int)
     v = np.zeros((nx, ny-1), dtype=np.int)
@@ -41,5 +38,10 @@ def init():
             else:
                 p[i,j] = ind
                 ind += 1
+    
     if ind != (nx*ny-1):
-        raise IndexError('wrong pressure index')
+        if pinned:
+            raise IndexError('wrong pressure index (pinned)')
+        elif not pinned and (ind != (nx*ny)):
+            raise IndexError('wrong pressure index (not pinned)')
+    return u, v, p

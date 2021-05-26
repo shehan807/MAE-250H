@@ -4,9 +4,10 @@ Created on May 2 2021
 Discrete operators for Navier-Stokes solver. 
 """
 import numpy as np
-from init import *
+from numba import jit
 
-def grad(g, pinned = True): # Gradient Operator
+@jit(nopython=True)
+def grad(g, u, v, p, dx, dy, nx, ny, q_size, pinned = True): # Gradient Operator
     
     q = np.zeros(q_size)
     
