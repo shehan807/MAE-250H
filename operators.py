@@ -100,14 +100,18 @@ def div(q, u, v, p, dx, dy, nx, ny, p_size, pinned=True): # Divergence Operator
                       + ( q[v[i,j]] - q[v[i,j-1]])/dy
     return g
 
-def bcdiv(qbc, u, v, p, dx, dy, nx, ny, p_size):
+def bcdiv(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
     """
     INPUTS: 
     ------
     qbc - dictionary with 8 keys (u and v 
     boundary conditions for each wall)
     """
-    bcD = np.zeros(p_size)
+    if pinned:
+        bcD = np.zeros(p_size)
+    elif not pinned:
+        bcD = np.zeros(p_size+1)
+
 
     uB, uL, uR, uT = qbc["uB"], qbc["uL"], qbc["uR"], qbc["uT"]
     vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
@@ -116,6 +120,7 @@ def bcdiv(qbc, u, v, p, dx, dy, nx, ny, p_size):
     # Bottom
     for j in [0]:
         for i in range(1, nx-1):
+            print(vB)
             bcD[p[i,j]] = - vB[i]/dy
     # Bottom Right
     for j in [0]:

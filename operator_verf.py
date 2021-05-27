@@ -131,6 +131,7 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
     err = []
     acc = 0
     grid = zip(dx, dy, nx, ny, g_size)
+    qBC = {}
 
     for dxi, dyi, nxi, nyi, g_sizei in grid:
         
@@ -164,12 +165,21 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
         q_test = q_test[0]
         g_ex = divf_ex[0]
         
-        # Boundary Conditions
-        #xB = 0
-        #yB = xp
-        #xL, yL = 
-        
-        g = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False)
+        # Top Wall BC
+        qBC["uT"] = fx(xu,Ly)
+        qBC["vT"] = fx(xv,Ly)
+        # Bottom Wall BC
+        qBC["uB"] = fx(xu,0)
+        qBC["vB"] = fx(xv,0)
+        # Left Wall BC
+        qBC["uL"] = fx(0,yu)
+        qBC["vL"] = fx(0,yv)
+        # Right Wall BC
+        qBC["uR"] = fx(Lx,yu)
+        qBC["vR"] = fx(Lx,yv)
+         
+        g = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) \
+          + op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) 
         
 
 
