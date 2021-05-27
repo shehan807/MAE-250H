@@ -109,4 +109,69 @@ def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True):
         plt.show()
 
     return dxdy, err, acc
+   
+def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
     
+    # Choose function with known analytic solution for divergence
+    functions = {
+            "fx1"   : lambda x, y : -y, 
+            "fy1"   : lambda x, y : x*y,
+            "divf1" : lambda x, y : x,
+            "fx2"   : lambda x, y : np.sin(x)*np.cos(y), 
+            "fy2"   : lambda x, y : -np.cos(x)*np.sin(y),
+            "divf2" : lambda x, y : 0.
+            }
+
+    fx = functions["fx1"]
+    fy = functions["fy1"] 
+    divf = functions["divf1"] 
+    
+
+    dxdy = []
+    err = []
+    acc = 0
+    grid = zip(dx, dy, nx, ny, g_size)
+
+    for dxi, dyi, nxi, nyi, g_sizei in grid:
+        
+        [ui, vi, pi] = init(nxi, nyi, pinned=False)
+
+        # Occasionally, np.arange will include the "stop" value due to rounding/floating
+        # point error, so a small corrector term (relative to grid spacing) ensures 
+        # arrays have correct length
+        corrX = 1e-6*dxi
+        corrY = 1e-6*dyi
+        
+        xu = np.arange(dxi, Lx-corrX, dxi)
+        yu = np.arange(0.5*dyi, Ly-corrY, dyi)
+        Xu, Yu = np.meshgrid(xu, yu)
+        Zxu = fx(Xu, Yu) 
+        q_test_x = np.reshape(Zxu, (1, nyi*(nxi-1)))
+        
+        xv = np.arange(0.5*dxi, Lx-corrX, dxi)
+        yv = np.arange(dyi, Ly-corrY, dyi)
+        Xv, Yv = np.meshgrid(xv, yv)
+        Zyv = fy(Xv, Yv) 
+        q_test_y = np.reshape(Zyv, (1, nxi*(nyi-1)))
+        
+        xp = np.arange(0.5*dxi, Lx-corrX, dxi)
+        yp = np.arange(0.5*dyi, Ly-corrY, dyi)
+        Xp, Yp = np.meshgrid(xp, yp)
+        Zp = divf(Xp,Yp) 
+        divf_ex = np.reshape( Zp, (1,nxi*nyi)) 
+        
+        q_test = np.concatenate((q_test_x, q_test_y), axis=1)
+        q_test = q_test[0]
+        g_ex = divf_ex[0]
+        
+        # Boundary Conditions
+        #xB = 0
+        #yB = xp
+        #xL, yL = 
+        
+        g = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False)
+        
+
+
+
+    return dxdy, err, acc

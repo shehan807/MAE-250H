@@ -14,4 +14,7 @@ outFile = 'output'+filename.split('inputs')[-1]
 #[u, v, p] = init(nx, ny)
 
 # Test Gradient Operator is Second-Order Accurate
-[dxdy, err, acc] = opf.test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile) 
+#[dxdy, err, acc] = opf.test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile) 
+
+# Test Divergence Operator is Second-Order Accurate
+[dxdy, err, acc] = opf.test_div(dx, dy, nx, ny, Lx, Ly, p_size, outFile) 
