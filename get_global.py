@@ -23,17 +23,24 @@ with open(inpFilePath + filename, 'r') as inp:
                 attr = np.array([float(entry) for entry in attr])
                 inputs[key] = attr
             continue
+        
         inputs[key] = float(attr)
   
-    if isinstance(inputs["nx"], str):
+    if isinstance(inputs["nx"], str): # NOTE: will not occure, remove in future push 
+        nx = int(inputs["nx"])
+        ny = int(inputs["ny"])
+    elif isinstance(inputs["nx"], float): # occurs everytime unless nx is an array 
         nx = int(inputs["nx"])
         ny = int(inputs["ny"])
     elif isinstance(inputs["nx"], np.ndarray):
         nx = inputs["nx"]
         ny = inputs["ny"]
     
-    if len(nx) != len(ny):
-        raise("Inputs in nx and ny MUST match.")
+    try:
+        if len(nx) != len(ny):
+            raise("Inputs in nx and ny MUST match.")
+    except: 
+        pass # inputs in nx, ny are single integer values
 
     Lx = float(inputs["Lx"])
     Ly = float(inputs["Ly"])

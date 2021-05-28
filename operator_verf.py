@@ -13,6 +13,7 @@ import mpltex
 
 import operators as op
 from init import *
+import visualization as vis
 
 def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True):
     
@@ -82,31 +83,7 @@ def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True):
     acc = lin.slope
     
     if  plots:
-        figFilePath = "./Figures/"
-        plt.rc('text', usetex=True)
-        plt.rc('font', family='serif')
-        plt.rc('xtick',labelsize=16)
-        plt.rc('ytick',labelsize=16)
-        plt.rc('grid', c='0.5', ls='-', alpha=0.5, lw=0.5)
-        fig = plt.figure(figsize=(8,6))
-        ax = fig.add_subplot(1,1,1)
-        ax.set_xlabel(r'$\Delta$ $x$*$\Delta$ $y$', fontsize=16)
-        ax.set_ylabel(r'L2 Norm, $||x||_{2}$', fontsize=16)
-        ax.set_title(r"Spatial Convergence of Gradient Operator, $G$", fontsize=20) 
-        ax.annotate(r"Log-Log Slope = $%.2f$" % (acc), 
-                xy=(0.75, 0.05), 
-                xycoords="axes fraction",
-                size=16,
-                ha='center',
-                va='center',
-                bbox=dict(boxstyle="round4", fc="aqua", ec="k", alpha=0.7))
-
-        plt.loglog(dxdy, err, 'bo', mfc="none", markersize=8, label='Gradient Operator Tests')
-        plt.loglog(dxdy, 10**(lin.slope*np.log10(dxdy)+lin.intercept), '-r', label='Fitted Line',linewidth=2)
-        plt.legend(prop={'size':14})
-        plt.grid(True, which="both")
-        #plt.savefig(figFilePath + outFile.split('.')[0])
-        plt.show()
+        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Gradient')
 
     return dxdy, err, acc
    
@@ -114,17 +91,17 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
     
     # Choose function with known analytic solution for divergence
     functions = {
-            "fx1"   : lambda x, y : -y, 
+            "fx1"   : lambda x, y : -y + x*0, 
             "fy1"   : lambda x, y : x*y,
-            "divf1" : lambda x, y : x,
+            "divf1" : lambda x, y : x + y*0,
             "fx2"   : lambda x, y : np.sin(x)*np.cos(y), 
             "fy2"   : lambda x, y : -np.cos(x)*np.sin(y),
-            "divf2" : lambda x, y : 0.
+            "divf2" : lambda x, y : x*0. + y*0.
             }
 
-    fx = functions["fx1"]
-    fy = functions["fy1"] 
-    divf = functions["divf1"] 
+    fx = functions["fx2"]
+    fy = functions["fy2"] 
+    divf = functions["divf2"] 
     
 
     dxdy = []
@@ -135,7 +112,7 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
 
     for dxi, dyi, nxi, nyi, g_sizei in grid:
         
-        [ui, vi, pi] = init(nxi, nyi, pinned=False)
+        [ui, vi, pi] = init(nxi, nyi, pinned=True)
 
         # Occasionally, np.arange will include the "stop" value due to rounding/floating
         # point error, so a small corrector term (relative to grid spacing) ensures 
@@ -159,28 +136,44 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
         yp = np.arange(0.5*dyi, Ly-corrY, dyi)
         Xp, Yp = np.meshgrid(xp, yp)
         Zp = divf(Xp,Yp) 
+        
         divf_ex = np.reshape( Zp, (1,nxi*nyi)) 
         
         q_test = np.concatenate((q_test_x, q_test_y), axis=1)
         q_test = q_test[0]
-        g_ex = divf_ex[0]
+        
+        g_ex = divf_ex[0][1::]
         
         # Top Wall BC
         qBC["uT"] = fx(xu,Ly)
-        qBC["vT"] = fx(xv,Ly)
+        qBC["vT"] = fy(xv,Ly)
         # Bottom Wall BC
         qBC["uB"] = fx(xu,0)
-        qBC["vB"] = fx(xv,0)
+        qBC["vB"] = fy(xv,0)
         # Left Wall BC
         qBC["uL"] = fx(0,yu)
-        qBC["vL"] = fx(0,yv)
+        qBC["vL"] = fy(0,yv)
         # Right Wall BC
         qBC["uR"] = fx(Lx,yu)
-        qBC["vR"] = fx(Lx,yv)
-         
-        g = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) \
-          + op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) 
+        qBC["vR"] = fy(Lx,yv)
         
+        gDiv = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=True) 
+        gBC  =  op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=True) 
+        g = gDiv + gBC 
+        
+        err.append( LA.norm(g-g_ex) / len(g) ) 
+        dxdy.append(dxi*dyi)
+        Linf = LA.norm(err, ord=np.inf)
+
+    lin = linregress(np.log10(dxdy), np.log10(err))
+    acc = lin.slope
+    
+    if plots:
+        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Divergence')
+        
+
+
+
 
 
 
