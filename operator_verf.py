@@ -15,7 +15,7 @@ import operators as op
 from init import *
 import visualization as vis
 
-def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True):
+def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
     
     # Choose function with known analytic solution for gradient
     functions = {
@@ -83,11 +83,11 @@ def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True):
     acc = lin.slope
     
     if  plots:
-        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Gradient')
+        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Gradient', save=save)
 
     return dxdy, err, acc
    
-def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
+def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
     
     # Choose function with known analytic solution for divergence
     functions = {
@@ -169,7 +169,7 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True):
     acc = lin.slope
     
     if plots:
-        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Divergence')
+        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Divergence', save=save)
         
 
 
