@@ -45,8 +45,9 @@ with open(inpFilePath + filename, 'r') as inp:
     Lx = float(inputs["Lx"])
     Ly = float(inputs["Ly"])
     
-    dx = Lx/nx
-    dy = Ly/ny
+    dx = Lx/(nx)
+    dy = Ly/(ny)
     
     q_size = (nx-1)*ny + nx*(ny-1)
+    
     p_size = nx*ny-1 # subtract one only for pinned pressure values

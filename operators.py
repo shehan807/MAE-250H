@@ -328,7 +328,7 @@ def bclap(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
     for j in range(1,ny-2):
         # Ghost Cell
         for i in [0]:
-            Lq[v[i,j]] =  (2*vL[i] -  q[v[i,j)]] / dx**2;
+            Lq[v[i,j]] =  (2*vL[i] -  q[v[i,j]]) / dx**2;
         for i in range(1,nx-1):
             Lq[v[i,j]] =  0
         # Ghost Cell

@@ -39,6 +39,7 @@ def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
 
     dxdy = []
     err = []
+    Linf = []
     acc = 0
     grid = zip(dx, dy, nx, ny, q_size)
 
@@ -77,9 +78,10 @@ def test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
         err.append(  LA.norm(q-grad_ex) / len(q) ) 
         
         dxdy.append(dxi*dyi)
-        Linf = LA.norm(err, ord=np.inf)
+        Linf.append(LA.norm(q-grad_ex, ord=np.inf))
         
     lin = linregress(np.log10(dxdy), np.log10(err))
+    print(lin)
     acc = lin.slope
     
     if  plots:
@@ -106,14 +108,16 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
 
     dxdy = []
     err = []
+    Linf = []
     acc = 0
     grid = zip(dx, dy, nx, ny, g_size)
     qBC = {}
 
     for dxi, dyi, nxi, nyi, g_sizei in grid:
         
-        [ui, vi, pi] = init(nxi, nyi, pinned=True)
-
+        [ui, vi, pi] = init(nxi, nyi, pinned=False)
+        print('dx, dy, nx, ny:')
+        print(dxi, dyi, nxi, nyi)
         # Occasionally, np.arange will include the "stop" value due to rounding/floating
         # point error, so a small corrector term (relative to grid spacing) ensures 
         # arrays have correct length
@@ -126,23 +130,40 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
         Zxu = fx(Xu, Yu) 
         q_test_x = np.reshape(Zxu, (1, nyi*(nxi-1)))
         
+        print('xu, yu, q_test_x:')
+        print(xu)
+        print(yu)
+        print(q_test_x)
+        
         xv = np.arange(0.5*dxi, Lx-corrX, dxi)
         yv = np.arange(dyi, Ly-corrY, dyi)
         Xv, Yv = np.meshgrid(xv, yv)
         Zyv = fy(Xv, Yv) 
         q_test_y = np.reshape(Zyv, (1, nxi*(nyi-1)))
         
+        print('xv, yv, q_test_y:')
+        print(xv)
+        print(yv)
+        print(q_test_y)
+        
+        print('Number of grid points:')
+        print(len(xu)*len(yu) + len(xv)*len(yv))
+
         xp = np.arange(0.5*dxi, Lx-corrX, dxi)
         yp = np.arange(0.5*dyi, Ly-corrY, dyi)
         Xp, Yp = np.meshgrid(xp, yp)
         Zp = divf(Xp,Yp) 
         
         divf_ex = np.reshape( Zp, (1,nxi*nyi)) 
+        print('xp, yp, divf_ex:')
+        print(xp)
+        print(yp)
+        print(divf_ex)
         
         q_test = np.concatenate((q_test_x, q_test_y), axis=1)
         q_test = q_test[0]
         
-        g_ex = divf_ex[0][1::]
+        g_ex = divf_ex[0][0::]
         
         # Top Wall BC
         qBC["uT"] = fx(xu,Ly)
@@ -157,15 +178,20 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
         qBC["uR"] = fx(Lx,yu)
         qBC["vR"] = fy(Lx,yv)
         
-        gDiv = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=True) 
-        gBC  =  op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=True) 
+        for key in qBC:
+            print(key)
+            print(qBC[key])
+        
+        gDiv = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) 
+        gBC  =  op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) 
         g = gDiv + gBC 
         
         err.append( LA.norm(g-g_ex) / len(g) ) 
         dxdy.append(dxi*dyi)
-        Linf = LA.norm(err, ord=np.inf)
-
+        Linf.append(LA.norm(g-g_ex, np.inf))
+        print(err[-1], Linf[-1])
     lin = linregress(np.log10(dxdy), np.log10(err))
+    print(lin)
     acc = lin.slope
     
     if plots:
