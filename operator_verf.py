@@ -154,13 +154,7 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
         Zp = divf(Xp,Yp) 
         divf_ex = np.reshape( Zp, (1,nxi*nyi)) 
         divf_ex = divf_ex[0]
-
-        ###divf_ex = np.ndarray(p_size, dtype=object)
-        ###for j in range(0, nyi):
-        ###    for i in range(0, nxi-1):
-        ###        divf_ex[p[i,j]] = divf(   )
         
-         
         # Top Wall BC
         qBC["uT"] = fx(xu,Ly)
         qBC["vT"] = fy(xv,Ly)
