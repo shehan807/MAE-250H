@@ -5,7 +5,8 @@ Global variables for NS solver.
 """
 import numpy as np
 filename = 'inputs.txt'
-filename = 'inputsDivTest.txt'
+filename = 'inputsGradTest.txt'
+#filename = 'inputsGradTest_min.txt'
 inpFilePath = './InputFiles/'
 with open(inpFilePath + filename, 'r') as inp: 
     
@@ -49,5 +50,7 @@ with open(inpFilePath + filename, 'r') as inp:
     dy = Ly/(ny)
     
     q_size = (nx-1)*ny + nx*(ny-1)
+    #q_size = (nx-2)*(ny-1) + (nx-1)*(ny-2)
     
     p_size = nx*ny-1 # subtract one only for pinned pressure values
+    #p_size = (nx-1)*(ny-1)-1 # subtract one only for pinned pressure values

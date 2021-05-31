@@ -28,8 +28,8 @@ def plotL2vsGridSize(linReg, dxdy, error, outFile, oprtr, save=False):
     fig = plt.figure(figsize=(8,6))
     
     ax = fig.add_subplot(1,1,1)
-    ax.set_xlabel(r'$\Delta$ $x$*$\Delta$ $y$', fontsize=16)
-    ax.set_ylabel(r'L2 Norm, $||x||_{2}$', fontsize=16)
+    ax.set_xlabel(r'$\Delta$ $x$, $\Delta$ $y$', fontsize=16)
+    ax.set_ylabel(r'$L^{\infty}$ Norm, $||x||_{\infty}$', fontsize=16)
     ax.set_title(r"Spatial Convergence of " + oprtr + " Operator", fontsize=20) 
     ax.annotate(r"Log-Log Slope = $%.2f$" % (linReg.slope), 
             xy=(0.75, 0.05), 

@@ -45,4 +45,5 @@ def init(nx, ny, pinned = True):
             raise IndexError('wrong pressure index (pinned)')
         elif not pinned and (ind != (nx*ny)):
             raise IndexError('wrong pressure index (not pinned)')
+    
     return u, v, p

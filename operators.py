@@ -4,6 +4,7 @@ Created on May 2 2021
 Discrete operators for Navier-Stokes solver. 
 """
 import numpy as np
+from numpy import linalg as LA
 #from numba import jit
 
 def grad(g, u, v, p, dx, dy, nx, ny, q_size, pinned = True): # Gradient Operator
@@ -18,7 +19,7 @@ def grad(g, u, v, p, dx, dy, nx, ny, q_size, pinned = True): # Gradient Operator
             if pinned:
                 q[u[i,j]] = (g[p[i+1,j]]            )/dx       # - g[p[0,0]]/dx = 0
             else: 
-                q[u[i,j]] = (g[p[i+1,j]] - g[p[0,0]])/dx       #  
+                q[u[i,j]] = (g[p[i+1,j]] - g[p[0,0]])/dx       # 
         for i in range(1,nx-1):
             q[u[i,j]] = (g[p[i+1,j]] - g[p[i,j]])/dx       # 
     for j in range(1,ny):
@@ -32,13 +33,14 @@ def grad(g, u, v, p, dx, dy, nx, ny, q_size, pinned = True): # Gradient Operator
                 q[v[i,j]] = (g[p[i,j+1]]            )/dy       # - g[p[0,0]]/dy = 0
             else: 
                 q[v[i,j]] = (g[p[i,j+1]] - g[p[0,0]])/dy       #  
+                
         for i in range(1,nx):
             q[v[i,j]] = (g[p[i,j+1]] - g[p[i,j]])/dy       # 
+    
     for j in range(1,ny-1):
         for i in range(0,nx):
             q[v[i,j]] = (g[p[i,j+1]] - g[p[i,j]])/dy       # 
-
-
+    
     return q
 
 def div(q, u, v, p, dx, dy, nx, ny, p_size, pinned=True): # Divergence Operator
@@ -133,6 +135,7 @@ def bcdiv(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
     for j in range(1, ny-1):
         for i in [nx-1]:
             bcD[p[i,j]] = uR[j]/dx
+            
     # Top Wall 
     for j in [ny-1]:
         for i in range(1,nx-1):
@@ -146,9 +149,9 @@ def bcdiv(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
         for i in [nx-1]:
             bcD[p[i,j]] = uR[j]/dx + vT[i]/dy
     # Interior Points (Zeroed to match q dimensions 
-    for j in range(1,ny-1):
-        for i in range(1,nx-1):
-            bcD[p[i,j]] = 0
+    #for j in range(1,ny-1):
+    #    for i in range(1,nx-1):
+    #        bcD[p[i,j]] = 0
     
     return bcD
 
