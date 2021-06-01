@@ -155,7 +155,7 @@ def bcdiv(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
     
     return bcD
 
-def laplace(qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
+def laplace(q, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
     
     Lq = np.zeros(q_size)
 
@@ -227,7 +227,7 @@ def laplace(qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
                        #   q[v[i+1,j]]                               / dx**2
                        #                             + q[v[i,j-1]]   / dy**2 
     # Top Row
-    for j in [ny-1]:
+    for j in [ny-2]:
         for i in [0]:
             Lq[v[i,j]] = ( q[v[i+1,j]] - 2*q[v[i,j]]               ) / dx**2 \
                        + (             - 2*q[v[i,j]] + q[v[i,j-1]] ) / dy**2
@@ -259,8 +259,10 @@ def laplace(qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
 
     return Lq
 
-def bclap(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
-     
+def bclap(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
+    
+    bcL = np.zeros(q_size)
+    
     uB, uL, uR, uT = qbc["uB"], qbc["uL"], qbc["uR"], qbc["uT"]
     vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
     
@@ -270,36 +272,36 @@ def bclap(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
     for j in [0]:
         # BC + Ghost Cell
         for i in [0]:
-            Lq[u[i,j]] = uL[i] / dx**2 + (2*uB[i] - q[u[i,j]]) / dy**2
+            bcL[u[i,j]] = uL[j] / dx**2 + (2*uB[i] - q[u[i,j]]) / dy**2
         # Ghost Cell
         for i in range(1,nx-2):
-            Lq[u[i,j]] = (2*uB[i] - q[u[i,j]]) / dy**2
+            bcL[u[i,j]] = (2*uB[i] - q[u[i,j]]) / dy**2
         # BC + Ghost Cell
         for i in [nx-2]:
-            Lq[u[i,j]] = uR[i] / dx**2 + (2*uB[i] - q[u[i,j]]) / dy**2
+            bcL[u[i,j]] = uR[j] / dx**2 + (2*uB[i] - q[u[i,j]]) / dy**2
     
     # Top Row
     for j in [ny-1]:
         # BC + Ghost Cell
         for i in [0]:
-             Lq[u[i,j]] = uL[i] / dx**2 + (2*uT[i] -  q[u[i,j]]) / dy**2
+             bcL[u[i,j]] = uL[j] / dx**2 + (2*uT[i] -  q[u[i,j]]) / dy**2
         # Ghost Cell
         for i in range(1,nx-2):
-             Lq[u[i,j]] = (2*uT[i] -  q[u[i,j]]) / dy**2
+             bcL[u[i,j]] = (2*uT[i] -  q[u[i,j]]) / dy**2
         # BC + Ghost Cell
         for i in [nx-2]:
-             Lq[u[i,j]] = uR[i] / dx**2 + (2*uT[i] -  q[u[i,j]]) / dy**2
+             bcL[u[i,j]] = uR[j] / dx**2 + (2*uT[i] -  q[u[i,j]]) / dy**2
     
     # Interior Nodes (DONE)
     for j in range(1,ny-1):
         # BC
         for i in [0]:
-            Lq[u[i,j]] = uL[i] / dx**2;
+            bcL[u[i,j]] = uL[j] / dx**2;
         for i in range(1,nx-2):
-            Lq[u[i,j]] = 0
+            bcL[u[i,j]] = 0
         # BC
         for i in [nx-2]:
-            Lq[u[i,j]] = uR[i] / dx**2; 
+            bcL[u[i,j]] = uR[j] / dx**2; 
     
     # V-COMPONENT
 
@@ -307,35 +309,34 @@ def bclap(qbc, u, v, p, dx, dy, nx, ny, p_size, pinned=True):
     for j in [0]:
         # BC + Ghost Cell
         for i in [0]:
-            Lq[v[i,j]] = (2*vL[i] -  q[v[i,j]]) / dx**2 + vB[i] / dy**2;
+            bcL[v[i,j]] = (2*vL[j] -  q[v[i,j]]) / dx**2 + vB[i] / dy**2;
         # BC
         for i in range(1,nx-1):
-            Lq[v[i,j]] = vB[i] / dy**2;
+            bcL[v[i,j]] = vB[i] / dy**2;
         # BC + Ghost Cell
         for i in [nx-1]:
-            Lq[v[i,j]] = (2*vR[i] -  q[v[i,j]]) / dx**2 + vB[i] / dy**2;
+            bcL[v[i,j]] = (2*vR[j] -  q[v[i,j]]) / dx**2 + vB[i] / dy**2;
     
     # Top Row 
     for j in [ny-2]:
         # BC + Ghost Cell
         for i in [0]:
-            Lq[v[i,j]] = (2*vL[i] -  q[v[i,j]]) / dx**2 + vT[i] / dy**2;
+            bcL[v[i,j]] = (2*vL[j] -  q[v[i,j]]) / dx**2 + vT[i] / dy**2;
         # BC
         for i in range(1,nx-1):
-            Lq[v[i,j]] = vT[i] / dy**2
+            bcL[v[i,j]] = vT[i] / dy**2
         # BC + Ghost Cell
         for i in [nx-1]:
-            Lq[v[i,j]] = (2*vR[i] -  q[v[i,j]]) / dx**2 + vT[i] / dy**2;
-    
+            bcL[v[i,j]] = (2*vR[j] -  q[v[i,j]]) / dx**2 + vT[i] / dy**2;
     # Interior Nodes
     for j in range(1,ny-2):
         # Ghost Cell
         for i in [0]:
-            Lq[v[i,j]] =  (2*vL[i] -  q[v[i,j]]) / dx**2;
+            bcL[v[i,j]] =  (2*vL[j] -  q[v[i,j]]) / dx**2;
         for i in range(1,nx-1):
-            Lq[v[i,j]] =  0
+            bcL[v[i,j]] =  0
         # Ghost Cell
         for i in [nx-1]:
-            Lq[v[i,j]] =  (2*vR[i] -  q[v[i,j]]) / dx**2;
+            bcL[v[i,j]] =  (2*vR[j] -  q[v[i,j]]) / dx**2;
 
     return bcL

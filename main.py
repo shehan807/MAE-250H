@@ -17,4 +17,7 @@ outFile = 'output'+filename.split('inputs')[-1]
 #[dxdy, err, acc] = opf.test_grad(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 
 
 # Test Divergence Operator is Second-Order Accurate
-[dxdy, err, acc] = opf.test_div(dx, dy, nx, ny, Lx, Ly, p_size, outFile, save=True) 
+#[dxdy, err, acc] = opf.test_div(dx, dy, nx, ny, Lx, Ly, p_size, outFile, save=True) 
+
+# Test Laplace Operator is Second-Order Accurate
+[dxdy, err, acc] = opf.test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 

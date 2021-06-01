@@ -189,59 +189,56 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
     
     # Choose function with known analytic solution for divergence
     functions = {
-            "fx1"   : lambda x, y : -y + x*0, 
-            "fy1"   : lambda x, y : x*y,
-            "divf1" : lambda x, y : x + y*0,
-            "fx2"   : lambda x, y : np.sin(x)*np.cos(y), 
-            "fy2"   : lambda x, y : -np.cos(x)*np.sin(y),
-            "divf2" : lambda x, y : x*0. + y*0.
+            "fx1"   : lambda x, y : x**2 + np.sin(y), 
+            "fy1"   : lambda x, y : x**2 + np.sin(y),
+            "Lfx1" : lambda x, y : 2. + x*0. - np.sin(y),
+            "Lfy1" : lambda x, y : 2. + x*0. - np.sin(y),
+
+            "fx2"   : lambda x, y : x**2 * y**2, 
+            "fy2"   : lambda x, y : x**2 * y**2,
+            "Lfx2" : lambda x, y : 2. * (x**2 + y**2),
+            "Lfy2" : lambda x, y : 2. * (x**2 + y**2)
             }
 
-    fx = functions["fx2"]
-    fy = functions["fy2"] 
-    divf = functions["divf2"] 
+    fx = functions["fx1"]
+    Lfx = functions["Lfx1"] 
     
+    fy = functions["fy1"] 
+    Lfy = functions["Lfy1"]  
 
     dxdy = []
-    err = []
+    L2 = []
+    Linf = []
     acc = 0
-    grid = zip(dx, dy, nx, ny, g_size)
     qBC = {}
 
-    for dxi, dyi, nxi, nyi, g_sizei in grid:
+    grid = zip(dx, dy, nx, ny, q_size)
+    for dxi, dyi, nxi, nyi, q_sizei in grid:
         
-        [ui, vi, pi] = init(nxi, nyi, pinned=True)
+        [ui, vi, pi] = init(nxi, nyi, pinned=False)
 
-        # Occasionally, np.arange will include the "stop" value due to rounding/floating
-        # point error, so a small corrector term (relative to grid spacing) ensures 
-        # arrays have correct length
-        corrX = 1e-6*dxi
-        corrY = 1e-6*dyi
-        
-        xu = np.arange(dxi, Lx-corrX, dxi)
-        yu = np.arange(0.5*dyi, Ly-corrY, dyi)
+        xu = dxi*(1. + np.arange(0, nxi-1))
+        yu = dyi*(0.5 + np.arange(0, nyi)) 
         Xu, Yu = np.meshgrid(xu, yu)
         Zxu = fx(Xu, Yu) 
+        Zxu_ex = Lfx(Xu, Yu)
         q_test_x = np.reshape(Zxu, (1, nyi*(nxi-1)))
-        
-        xv = np.arange(0.5*dxi, Lx-corrX, dxi)
-        yv = np.arange(dyi, Ly-corrY, dyi)
+        q_test_x_ex = np.reshape(Zxu_ex, (1, nyi*(nxi-1)))
+
+        xv = dxi*(0.5 + np.arange(0, nxi))
+        yv = dyi*(1.0 + np.arange(0, nyi-1))
         Xv, Yv = np.meshgrid(xv, yv)
         Zyv = fy(Xv, Yv) 
+        Zyv_ex = Lfy(Xv, Yv)
         q_test_y = np.reshape(Zyv, (1, nxi*(nyi-1)))
-        
-        xp = np.arange(0.5*dxi, Lx-corrX, dxi)
-        yp = np.arange(0.5*dyi, Ly-corrY, dyi)
-        Xp, Yp = np.meshgrid(xp, yp)
-        Zp = divf(Xp,Yp) 
-        
-        divf_ex = np.reshape( Zp, (1,nxi*nyi)) 
+        q_test_y_ex = np.reshape(Zyv_ex, (1, nxi*(nyi-1)))
         
         q_test = np.concatenate((q_test_x, q_test_y), axis=1)
+        q_test_ex = np.concatenate((q_test_x_ex, q_test_y_ex), axis=1)
+        
         q_test = q_test[0]
-        
-        g_ex = divf_ex[0][1::]
-        
+        q_test_ex = q_test_ex[0]
+         
         # Top Wall BC
         qBC["uT"] = fx(xu,Ly)
         qBC["vT"] = fy(xv,Ly)
@@ -255,18 +252,21 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         qBC["uR"] = fx(Lx,yu)
         qBC["vR"] = fy(Lx,yv)
         
-        gDiv = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=True) 
-        gBC  =  op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=True) 
-        g = gDiv + gBC 
+        Lq = op.laplace(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
+        LqBC  =  op.bclap(q_test, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
+        q = Lq + LqBC 
         
-        err.append( LA.norm(g-g_ex) / len(g) ) 
-        dxdy.append(dxi*dyi)
-        Linf = LA.norm(err, ord=np.inf)
 
+        diff = q-q_test_ex
+        dxdy.append(dxi)
+        L2.append( LA.norm(diff) / len(q) ) 
+        Linf.append(LA.norm(diff, np.inf))
+    
+    err = L2
     lin = linregress(np.log10(dxdy), np.log10(err))
     acc = lin.slope
     
     if plots:
-        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Divergence', save=save)
+        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Laplace', save=save)
         
     return dxdy, err, acc
