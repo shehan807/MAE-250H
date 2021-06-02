@@ -214,7 +214,8 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
 
     grid = zip(dx, dy, nx, ny, q_size)
     for dxi, dyi, nxi, nyi, q_sizei in grid:
-        
+        print('dxi, dyi')
+        print(dxi, dyi)
         [ui, vi, pi] = init(nxi, nyi, pinned=False)
 
         xu = dxi*(1. + np.arange(0, nxi-1))
@@ -238,16 +239,29 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         
         q_test = q_test[0]
         q_test_ex = q_test_ex[0]
-         
+        print('q_test_y')
+        print(q_test_y)
+        print('q_test_y_ex')
+        print(q_test_y_ex)
         # Top Wall BC
         qBC["uT"] = fx(xu,Ly)
         qBC["vT"] = fy(xv,Ly)
         # Bottom Wall BC
         qBC["uB"] = fx(xu,0)
         qBC["vB"] = fy(xv,0)
+        
+        print('vB')
+        print(xv)
+        print(qBC["vB"])
+        
         # Left Wall BC
         qBC["uL"] = fx(0,yu)
         qBC["vL"] = fy(0,yv)
+        
+        print('vL')
+        print(yv)
+        print(qBC["vL"])
+        
         # Right Wall BC
         qBC["uR"] = fx(Lx,yu)
         qBC["vR"] = fy(Lx,yv)
@@ -258,6 +272,9 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         
 
         diff = q-q_test_ex
+        print('Bottom left corner of exact solution: %.3ef' % (q_test_ex[vi[0,0]]))
+        plt.plot(list(range(0,len(diff))), np.abs(diff))
+        plt.show()
         dxdy.append(dxi)
         L2.append( LA.norm(diff) / len(q) ) 
         Linf.append(LA.norm(diff, np.inf))

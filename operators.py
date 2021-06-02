@@ -215,6 +215,8 @@ def laplace(q, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
         for i in [0]:
             Lq[v[i,j]] = ( q[v[i+1,j]] - 2*q[v[i,j]]               ) / dx**2 \
                        + ( q[v[i,j+1]] - 2*q[v[i,j]]               ) / dy**2
+            print('Bottom Row, v[i,j] = v[%d, %d] ' % (i,j))
+            print('Lq[v[i,j]] = %.3e ' % (Lq[v[i,j]]))
                        #                             + q[v[i-1,j]]   / dx**2
                        #                             + q[v[i,j-1]]   / dy**2
         for i in range(1,nx-1):
@@ -310,6 +312,8 @@ def bclap(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
         # BC + Ghost Cell
         for i in [0]:
             bcL[v[i,j]] = (2*vL[j] -  q[v[i,j]]) / dx**2 + vB[i] / dy**2;
+            print('Bottom Row, v[i,j] = v[%d, %d] ' % (i,j))
+            print('bcL[v[i,j]] = %.3e ' % (bcL[v[i,j]]))
         # BC
         for i in range(1,nx-1):
             bcL[v[i,j]] = vB[i] / dy**2;
@@ -340,3 +344,31 @@ def bclap(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
             bcL[v[i,j]] =  (2*vR[j] -  q[v[i,j]]) / dx**2;
 
     return bcL
+
+def adv(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
+    
+    advq = np.zeros(q_size)
+    
+    uB, uL, uR, uT = qbc["uB"], qbc["uL"], qbc["uR"], qbc["uT"]
+    vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
+
+    # Nx(i,j) -> u
+    for j in range(0, ny):
+        for i in range(0, nx-1):
+            
+            # Interpolation Operations
+            _ux_ux_ = -0.5*(q[u[i-1,j]] - q[u[i,j]])**2  \
+                    +  0.5*(q[u[i,j]]   + q[u[i+1,j]])**2 # Cell Center
+
+            _uy_vx_ = -0.5*(q[v[i,j-1]] + q[v[i+1,j-1]]) * 0.5*(q[u[i,j-1]] + q[u[i,j]]) \
+                    +  0.5*(q[v[i,j+1]] + q[v[i+1,j+1]]) * 0.5*(q[u[i,j]]   + q[u[i,j+1]])       # Cell Vertex
+            
+            # Difference Operation
+            del_x_ux_ux = _ux_ux_ / dx
+            del_y_uy_vx = _uy_vx_ / dy
+
+            advq[u[i,j]] = del_x_ux_ux + del_y_uy_vx
+
+
+    return advq
+
