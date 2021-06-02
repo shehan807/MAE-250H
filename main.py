@@ -21,3 +21,6 @@ outFile = 'output'+filename.split('inputs')[-1]
 
 # Test Laplace Operator is Second-Order Accurate
 #[dxdy, err, acc] = opf.test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 
+
+# Test Advective Operator is Second-Order Accurate
+[dxdy, err, acc] = opf.test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 

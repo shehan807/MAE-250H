@@ -287,3 +287,88 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Laplace', save=save)
         
     return dxdy, err, acc
+
+def test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
+    
+    # Choose function with known analytic solution for divergence
+    functions = {
+            "fu1"   : lambda x, y : np.sin(x)*np.sin(y), 
+            "fv1"   : lambda x, y : np.cos(x)*np.cos(y),
+            "Nx1" : lambda x, y :   np.cos(x)*np.sin(x)*np.cos(y)**2 + np.cos(x)*np.sin(x)*np.sin(y)**2,
+            "Ny1" : lambda x, y : - np.cos(y)*np.sin(y)*np.cos(x)**2 - np.cos(y)*np.sin(y)*np.sin(x)**2
+            }
+
+    fu = functions["fu1"]
+    fv = functions["fv1"]  
+    Nx = functions["Nx1"]  
+    Ny = functions["Ny1"]  
+
+    dxdy = []
+    L2 = []
+    Linf = []
+    acc = 0
+    qBC = {}
+
+    grid = zip(dx, dy, nx, ny, q_size)
+    for dxi, dyi, nxi, nyi, q_sizei in grid:
+        
+        [ui, vi, pi] = init(nxi, nyi, pinned=False)
+
+        xu = dxi*(1. + np.arange(0, nxi-1))
+        yu = dyi*(0.5 + np.arange(0, nyi)) 
+        Xu, Yu = np.meshgrid(xu, yu)
+        Zxu = fu(Xu, Yu) 
+        Nx_ex = Nx(Xu, Yu)
+        
+        q_test_x = np.reshape(Zxu, (1, nyi*(nxi-1)))
+        q_test_x_ex = np.reshape(Nx_ex, (1, nyi*(nxi-1)))
+
+        xv = dxi*(0.5 + np.arange(0, nxi))
+        yv = dyi*(1.0 + np.arange(0, nyi-1))
+        Xv, Yv = np.meshgrid(xv, yv)
+        Zyv = fv(Xv, Yv) 
+        Ny_ex = Ny(Xv, Yv)
+        
+        q_test_y = np.reshape(Zyv, (1, nxi*(nyi-1)))
+        q_test_y_ex = np.reshape(Ny_ex, (1, nxi*(nyi-1)))
+        
+        q_test = np.concatenate((q_test_x, q_test_y), axis=1)
+        q_test_ex = np.concatenate((q_test_x_ex, q_test_y_ex), axis=1)
+        
+        q_test = q_test[0]
+        q_test_ex = q_test_ex[0]
+        
+        # Top Wall BC
+        qBC["uT"] = fu(xu,Ly)
+        qBC["vT"] = fv(xv,Ly)
+        # Bottom Wall BC
+        qBC["uB"] = fu(xu,0)
+        qBC["vB"] = fv(xv,0)
+        # Left Wall BC
+        qBC["uL"] = fu(0,yu)
+        qBC["vL"] = fv(0,yv)
+        # Right Wall BC
+        qBC["uR"] = fu(Lx,yu)
+        qBC["vR"] = fv(Lx,yv)
+        
+        N = op.adv(q_test, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
+        
+
+        diff = N-q_test_ex
+        plt.plot(list(range(0,len(N))), np.abs(diff))
+        plt.show()
+        dxdy.append(dxi)
+        
+        L2.append( LA.norm(diff) / len(N) ) 
+        Linf.append(LA.norm(diff, np.inf))
+        print(L2[-1], Linf[-1])
+
+    err = L2
+    lin = linregress(np.log10(dxdy), np.log10(err))
+    acc = lin.slope
+    
+    if plots:
+        vis.plotL2vsGridSize(lin, dxdy, err, outFile, 'Nonlinear Advection', save=save)
+        
+    return dxdy, err, acc
+

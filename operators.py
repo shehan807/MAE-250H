@@ -353,22 +353,65 @@ def adv(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
     vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
 
     # Nx(i,j) -> u
+    # Interpolation Operations, _uy_vx (cell vertices) and _ux_ux (cell centers)
+    # Difference Operations, del_x, del_y
     for j in range(0, ny):
-        for i in range(0, nx-1):
+        for i in range(0, nx-1): # Interior
+            if i == 0: # Left Wall
+                _ux_ux_ = -0.5*(uL[j]       + q[u[i,j]])**2  \
+                        +  0.5*(q[u[i,j]]   + q[u[i+1,j]])**2 
+            elif i == nx-2: # Right Wall    
+                _ux_ux_ = -0.5*(q[u[i-1,j]] + q[u[i,j]])**2  \
+                        +  0.5*(q[u[i,j]]   + uR[j])**2 
+            else: # Interior
+                _ux_ux_ = -0.5*(q[u[i-1,j]] + q[u[i,j]])**2  \
+                        +  0.5*(q[u[i,j]]   + q[u[i+1,j]])**2 
             
-            # Interpolation Operations
-            _ux_ux_ = -0.5*(q[u[i-1,j]] - q[u[i,j]])**2  \
-                    +  0.5*(q[u[i,j]]   + q[u[i+1,j]])**2 # Cell Center
-
-            _uy_vx_ = -0.5*(q[v[i,j-1]] + q[v[i+1,j-1]]) * 0.5*(q[u[i,j-1]] + q[u[i,j]]) \
-                    +  0.5*(q[v[i,j+1]] + q[v[i+1,j+1]]) * 0.5*(q[u[i,j]]   + q[u[i,j+1]])       # Cell Vertex
+            if j == 0: # Bottom Wall
+                _vx_uy_ = -0.5*(vB[i] + vB[i+1]) * uB[i] \
+                        +  0.5*(q[v[i,j+1]] + q[v[i+1,j+1]]) * 0.5*(q[u[i,j]]   + q[u[i,j+1]]) 
+            elif j == ny-1: # Top Wall
+                _vx_uy_ = -0.5*(q[v[i,j-1]] + q[v[i+1,j-1]]) * 0.5*(q[u[i,j-1]] + q[u[i,j]]) \
+                        +  0.5*(vT[i] + vT[i+1]) * uT[i] 
+            else: # Interior
+                _vx_uy_ = -0.5*(q[v[i,j-1]] + q[v[i+1,j-1]]) * 0.5*(q[u[i,j-1]] + q[u[i,j]]) \
+                        +  0.5*(q[v[i,j]]   + q[v[i+1,j]])   * 0.5*(q[u[i,j]]   + q[u[i,j+1]]) 
             
-            # Difference Operation
             del_x_ux_ux = _ux_ux_ / dx
-            del_y_uy_vx = _uy_vx_ / dy
+            del_y_vx_uy = _vx_uy_ / dy
+            
+            advq[u[i,j]] = del_x_ux_ux + del_y_vx_uy
+        
 
-            advq[u[i,j]] = del_x_ux_ux + del_y_uy_vx
+    # Ny(i,j) -> v
+    # Interpolation Operations, _uy_vx (cell vertices) and _vy_vy (cell centers)
+    for j in range(0, ny-1):
+        for i in range(0, nx):
+            
+            if i == 0: # Left Wall
+                _uy_vx_ = -0.5*(uL[j] + uL[j+1]) * vL[j] \
+                        +  0.5*(q[u[i,j]]   + q[u[i,j+1]])   * 0.5*(q[v[i,j]]   + q[v[i+1,j]]) 
+            elif i == nx-1: # Right Wall
+                _uy_vx_ = -0.5*(q[u[i-1,j]] + q[u[i-1,j+1]]) * 0.5*(q[v[i-1,j]] + q[v[i,j]]) \
+                        +  0.5*(uR[j] + uR[j+1]) * vR[j] 
+            else: 
+                _uy_vx_ = -0.5*(q[u[i-1,j]] + q[u[i-1,j+1]]) * 0.5*(q[v[i-1,j]] + q[v[i,j]]) \
+                        +  0.5*(q[u[i,j]]   + q[u[i,j+1]])   * 0.5*(q[v[i,j]]   + q[v[i+1,j]]) 
+            
+            if j == 0: # Bottom Wall
+                _vy_vy_ = -0.5*(vB[i] + q[v[i,j]])**2  \
+                        +  0.5*(q[v[i,j]]   + q[v[i,j+1]])**2 
+            elif j == ny-2: # Top Wall
+                _vy_vy_ = -0.5*(q[v[i,j-1]] + q[v[i,j]])**2  \
+                        +  0.5*(q[v[i,j]]   + vT[i])**2 
+            else:
+                _vy_vy_ = -0.5*(q[v[i,j-1]] + q[v[i,j]])**2  \
+                        +  0.5*(q[v[i,j]]   + q[v[i,j+1]])**2 
+            
+            del_x_uy_vx = _uy_vx_ / dx
+            del_y_vy_vy = _vy_vy_ / dy
 
+            advq[v[i,j]] = del_x_uy_vx + del_y_vy_vy
 
     return advq
 
