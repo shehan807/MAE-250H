@@ -193,18 +193,33 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
             "fy1"   : lambda x, y : x**2 + np.sin(y),
             "Lfx1" : lambda x, y : 2. + x*0. - np.sin(y),
             "Lfy1" : lambda x, y : 2. + x*0. - np.sin(y),
+            
+            "fx2"   : lambda x, y : x**2 + y**2, 
+            "fy2"   : lambda x, y : x**2 + y**2,
+            "Lfx2" : lambda x, y : 4. + x*0. + y*0,
+            "Lfy2" : lambda x, y : 4. + x*0. + y*0,
 
-            "fx2"   : lambda x, y : x**2 * y**2, 
-            "fy2"   : lambda x, y : x**2 * y**2,
-            "Lfx2" : lambda x, y : 2. * (x**2 + y**2),
-            "Lfy2" : lambda x, y : 2. * (x**2 + y**2)
+            "fx3"   : lambda x, y : x**2 * y**2, 
+            "fy3"   : lambda x, y : x**2 * y**2,
+            "Lfx3" : lambda x, y : 2. * (x**2 + y**2),
+            "Lfy3" : lambda x, y : 2. * (x**2 + y**2),
+            
+            "fx4"   : lambda x, y : (np.sin(x)/np.sin(3*np.pi)) + (np.sinh(y)/np.sinh(np.pi)), 
+            "fy4"   : lambda x, y : (np.sin(x)/np.sin(3*np.pi)) + (np.sinh(y)/np.sinh(np.pi)),
+            "Lfx4" : lambda x, y : x*0 + y*0,
+            "Lfy4" : lambda x, y : x*0 + y*0,
+            
+            "fx5"   : lambda x, y : (400/np.pi) * (np.exp(-0.5*np.pi*x) * np.sin(0.5*np.pi*y)), 
+            "fy5"   : lambda x, y : (400/np.pi) * (np.exp(-0.5*np.pi*x) * np.sin(0.5*np.pi*y)),
+            "Lfx5" : lambda x, y : x*0 + y*0,
+            "Lfy5" : lambda x, y : x*0 + y*0
             }
 
-    fx = functions["fx1"]
-    Lfx = functions["Lfx1"] 
+    fx = functions["fx5"]
+    Lfx = functions["Lfx5"] 
     
-    fy = functions["fy1"] 
-    Lfy = functions["Lfy1"]  
+    fy = functions["fy5"] 
+    Lfy = functions["Lfy5"]  
 
     dxdy = []
     L2 = []
@@ -214,8 +229,7 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
 
     grid = zip(dx, dy, nx, ny, q_size)
     for dxi, dyi, nxi, nyi, q_sizei in grid:
-        print('dxi, dyi')
-        print(dxi, dyi)
+        
         [ui, vi, pi] = init(nxi, nyi, pinned=False)
 
         xu = dxi*(1. + np.arange(0, nxi-1))
@@ -239,29 +253,16 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         
         q_test = q_test[0]
         q_test_ex = q_test_ex[0]
-        print('q_test_y')
-        print(q_test_y)
-        print('q_test_y_ex')
-        print(q_test_y_ex)
+        
         # Top Wall BC
         qBC["uT"] = fx(xu,Ly)
         qBC["vT"] = fy(xv,Ly)
         # Bottom Wall BC
         qBC["uB"] = fx(xu,0)
-        qBC["vB"] = fy(xv,0)
-        
-        print('vB')
-        print(xv)
-        print(qBC["vB"])
-        
+        qBC["vB"] = fy(xv,0) 
         # Left Wall BC
         qBC["uL"] = fx(0,yu)
         qBC["vL"] = fy(0,yv)
-        
-        print('vL')
-        print(yv)
-        print(qBC["vL"])
-        
         # Right Wall BC
         qBC["uR"] = fx(Lx,yu)
         qBC["vR"] = fy(Lx,yv)
@@ -269,17 +270,13 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         Lq = op.laplace(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
         LqBC  =  op.bclap(q_test, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
         q = Lq + LqBC 
-        
-
+         
         diff = q-q_test_ex
-        print('Bottom left corner of exact solution: %.3ef' % (q_test_ex[vi[0,0]]))
-        plt.plot(list(range(0,len(diff))), np.abs(diff))
-        plt.show()
         dxdy.append(dxi)
         L2.append( LA.norm(diff) / len(q) ) 
         Linf.append(LA.norm(diff, np.inf))
     
-    err = L2
+    err = Linf
     lin = linregress(np.log10(dxdy), np.log10(err))
     acc = lin.slope
     
@@ -294,14 +291,23 @@ def test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
     functions = {
             "fu1"   : lambda x, y : np.sin(x)*np.sin(y), 
             "fv1"   : lambda x, y : np.cos(x)*np.cos(y),
-            "Nx1" : lambda x, y :   np.cos(x)*np.sin(x)*np.cos(y)**2 + np.cos(x)*np.sin(x)*np.sin(y)**2,
-            "Ny1" : lambda x, y : - np.cos(y)*np.sin(y)*np.cos(x)**2 - np.cos(y)*np.sin(y)*np.sin(x)**2
+            "Nx1"   : lambda x, y :   np.cos(x)*np.sin(x)*np.cos(y)**2 + np.cos(x)*np.sin(x)*np.sin(y)**2,
+            "Ny1"   : lambda x, y : - np.cos(y)*np.sin(y)*np.cos(x)**2 - np.cos(y)*np.sin(y)*np.sin(x)**2,
+            "fu2"   : lambda x, y :   np.cos(x)*np.cos(y) + np.sin(x)*np.sin(y), 
+            "fv2"   : lambda x, y :   x*np.exp(-y/2),
+            "Nx2"   : lambda x, y :   2*(np.cos(x)*np.cos(y) + np.sin(x)*np.sin(y))*(np.cos(x)*np.sin(y) \
+                                    - np.cos(y)*np.sin(x)) - (x*np.exp(-y/2)*(np.cos(x)*np.cos(y) \
+                                    + np.sin(x)*np.sin(y)))/2 - x*np.exp(-y/2)*(np.cos(x)*np.sin(y) \
+                                    - np.cos(y)*np.sin(x)),
+            "Ny2"   : lambda x, y : np.exp(-y/2)*(np.cos(x)*np.cos(y) + np.sin(x)*np.sin(y)) \
+                                    - x**2*np.exp(-y) + x*np.exp(-y/2)*(np.cos(x)*np.sin(y) \
+                                    - np.cos(y)*np.sin(x))
             }
 
-    fu = functions["fu1"]
-    fv = functions["fv1"]  
-    Nx = functions["Nx1"]  
-    Ny = functions["Ny1"]  
+    fu = functions["fu2"]
+    fv = functions["fv2"]  
+    Nx = functions["Nx2"]  
+    Ny = functions["Ny2"]  
 
     dxdy = []
     L2 = []
@@ -349,21 +355,17 @@ def test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
         qBC["vL"] = fv(0,yv)
         # Right Wall BC
         qBC["uR"] = fu(Lx,yu)
-        qBC["vR"] = fv(Lx,yv)
+        qBC["vR"] = fv(Lx,yv) # added +0.5*dxi
         
         N = op.adv(q_test, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
         
-
         diff = N-q_test_ex
-        plt.plot(list(range(0,len(N))), np.abs(diff))
-        plt.show()
-        dxdy.append(dxi)
+        dxdy.append(dyi)
         
         L2.append( LA.norm(diff) / len(N) ) 
         Linf.append(LA.norm(diff, np.inf))
-        print(L2[-1], Linf[-1])
 
-    err = L2
+    err = Linf
     lin = linregress(np.log10(dxdy), np.log10(err))
     acc = lin.slope
     
