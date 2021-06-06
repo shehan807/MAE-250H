@@ -48,3 +48,6 @@ def plotL2vsGridSize(linReg, dxdy, error, outFile, oprtr, save=False):
     plt.show()
 
     return
+
+#def plot2D():
+    

@@ -209,17 +209,22 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
             "Lfx4" : lambda x, y : x*0 + y*0,
             "Lfy4" : lambda x, y : x*0 + y*0,
             
-            "fx5"   : lambda x, y : (400/np.pi) * (np.exp(-0.5*np.pi*x) * np.sin(0.5*np.pi*y)), 
-            "fy5"   : lambda x, y : (400/np.pi) * (np.exp(-0.5*np.pi*x) * np.sin(0.5*np.pi*y)),
+            "fx5"   : lambda x, y : (np.exp(-0.5*np.pi*x) * np.sin(0.5*np.pi*y)), 
+            "fy5"   : lambda x, y : (np.exp(-0.5*np.pi*x) * np.sin(0.5*np.pi*y)),
             "Lfx5" : lambda x, y : x*0 + y*0,
-            "Lfy5" : lambda x, y : x*0 + y*0
+            "Lfy5" : lambda x, y : x*0 + y*0,
+            
+            "fx6"   : lambda x, y : np.sin(np.pi*x)*np.sin(np.pi*y), 
+            "fy6"   : lambda x, y : np.sin(np.pi*x)*np.sin(np.pi*y),
+            "Lfx6" : lambda x, y : -2*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y),
+            "Lfy6" : lambda x, y : -2*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
             }
 
-    fx = functions["fx5"]
-    Lfx = functions["Lfx5"] 
+    fx = functions["fx6"]
+    Lfx = functions["Lfx6"] 
     
-    fy = functions["fy5"] 
-    Lfy = functions["Lfy5"]  
+    fy = functions["fy6"] 
+    Lfy = functions["Lfy6"]  
 
     dxdy = []
     L2 = []

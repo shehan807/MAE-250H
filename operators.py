@@ -500,3 +500,21 @@ def adv(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
 
     return advq
 
+def S(q, u, v, p, dx, dy, nx, ny, q_size, alpha, nu, dt, pinned=True):
+    
+    Lq = laplace(q, u, v, p, dx, dy, nx, ny, q_size, pinned=False)
+    a = alpha*nu*dt
+    I = np.ones(Lq.shape)
+    Sq = np.add(I, np.multiply(a, Lq))
+
+    return Sq
+
+def R(q, u, v, p, dx, dy, nx, ny, q_size, alpha, nu, dt, pinned=True):
+    
+    Lq = laplace(q, u, v, p, dx, dy, nx, ny, q_size, pinned=False)
+    a = alpha*nu*dt
+    I = np.ones(Lq.shape)
+    Rq = np.subtract(I, np.multiply(a, Lq))
+    
+    return Lq, a, I, Rq
+
