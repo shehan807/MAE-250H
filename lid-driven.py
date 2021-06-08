@@ -168,7 +168,7 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
 
         if plotCurrent:
             # Current Simulation
-            levels = np.linspace(0, 1, 1000)
+            levels = np.linspace(-0.3, 1, 1000)
             fig, ax = plt.subplots()
             q_u = np.reshape(q_n[0:(nyi*(nxi-1))], (Xu.shape)) 
             CS = ax.contourf(Xu, Yu, q_u, levels=levels, cmap=cm.viridis)
