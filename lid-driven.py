@@ -7,7 +7,9 @@ from matplotlib import cm
 from cgs import *
 from matplotlib.animation import FuncAnimation
 from scipy.sparse.linalg import cg
-
+import visualization as vis
+import csv
+import pandas as pd 
 
 plotCurrent = False
 
@@ -19,13 +21,13 @@ acc = 0
 qBC_nm1 = {}
 qBC = {}
 
-dt = 1e-2
+dt = 5e-3
 T = 10
 Nt = int(T/dt)
 print('Nt = %d' % (Nt))
 t = np.linspace(0, Nt*dt, Nt)
 alpha = .5 # Crank-Nicholson 
-Re = 100
+Re = 400
 nu = 1./Re
 a = 2
 
@@ -103,7 +105,7 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
      
 
     # ---------- Begin Time-Stepping ---
-    for tn in range(1, Nt):
+    for tn in range(1, Nt+1):
     
         # ---------- Set Boundary Conditions for n+1 ------------
     
@@ -152,10 +154,14 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
         qBC_nm1 = qBC
         q_n = q_np1
         bcL_n = bcL_np1
+        
+        # ---------- Visualization & Save Data ------------------------------
+        #vis.plotVelocity(q_n, qBC, xu, xv, yu, yv, nxi, nyi, dt*tn, Re, drawNow = True, quiverOn = True)
 
         if (tn % 200) == 0:
+            vis.plotVelocity(q_n, qBC, xu, xv, yu, yv, nxi, nyi, dt*tn, Re, drawNow = False, quiverOn = False)
             print('Time = %f' % ((tn+1)*dt))
-            plotCurrent = True
+            #plotCurrent = True
 
         
         # ---------- Save X-Data at y = 0.5 ------------------
@@ -175,6 +181,5 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
             fig.colorbar(CS)
             ax.set_xlabel('$X$')
             ax.set_ylabel('$Y$')
-            plt.show()
             plotCurrent = False
     
