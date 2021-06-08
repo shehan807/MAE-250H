@@ -516,5 +516,21 @@ def R(q, u, v, p, dx, dy, nx, ny, q_size, alpha, nu, dt, pinned=True):
     I = np.ones(Lq.shape)
     Rq = np.subtract(q, np.multiply(a, Lq))
     
-    return Lq, a, I, Rq
+    return Rq
+
+def Rinv(q, u, v, p, dx, dy, nx, ny, q_size, alpha, nu, dt, pinned=True):
+    
+    Lq = laplace(q, u, v, p, dx, dy, nx, ny, q_size, pinned=False)
+    Lq2 = laplace(Lq, u, v, p, dx, dy, nx, ny, q_size, pinned=False)
+    a = alpha*nu*dt
+    a2 = a**2
+    I = np.ones(Lq.shape)
+    
+    # Taylor Series Expansion
+    term1 = np.multiply(I, q)
+    term2 = np.multiply(a, Lq)
+    term3 = np.multiply(a2, Lq2)
+    Rinvq = np.add(np.add(term1, term2), term3)
+
+    return Rinvq
 

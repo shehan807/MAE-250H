@@ -27,9 +27,9 @@ acc = 0
 qBC_nm1 = {}
 qBC = {}
 
-dt = .01
+dt = 1e-1
 T = 1
-Nt = 100 #int(T/dt)
+Nt = 10 #int(T/dt)
 t = np.linspace(0, Nt*dt, Nt)
 alpha = .5 # Crank-Nicholson 
 nu = 0.05
@@ -202,7 +202,7 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
         qu_np1_ex = q_np1_ex[0][0:nyi*(nxi-1)]
 
         error = LA.norm(qu_np1 - qu_np1_ex, np.inf)
-        if (tn % 20) == 0:
+        if (tn % 2) == 0:
             print('Time = %f' % ((tn+1)*dt))
             print('Error b/w qu_np1 and qu_np1_ex: ' + str(error))
 
@@ -271,11 +271,6 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
     #print(U_data)
     Xu_data, Tu_data = np.meshgrid(xu, time)
     U_data = np.array(U_data)
-    print(Xu_data)
-    print(Tu_data)
-    print(time)
-    print(Xu_data.shape)
-    print(U_data.shape)
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     #plt.contourf(Xu, Yu, q_u_exact)
