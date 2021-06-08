@@ -225,7 +225,7 @@ def Atimes(x, b, eqn, u, v, p, dx, dy, nx, ny, q_size, alpha, nu, dt, pinned=Fal
     else:   
         #plt.scatter(list(range(0,len(del_new_vals))), del_new_vals, marker='o')
         #plt.show()
-        print('CGS cnverged in %d iterations.' % (i))
+        #print('CGS cnverged in %d iterations.' % (i))
         return [x, Ax]
 
 def testMatrix(ndim, seed = None):
