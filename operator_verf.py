@@ -7,6 +7,7 @@ with known exact solutions.
 import numpy as np
 from scipy.stats import linregress
 from numpy import linalg as LA
+from matplotlib import cm
 import matplotlib.pyplot as plt 
 import matplotlib.ticker as ticker
 import mpltex
@@ -275,12 +276,38 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         Lq = op.laplace(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
         LqBC  =  op.bclap(q_test, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
         q = Lq + LqBC 
-         
+        
+        # ------------------Plot U or V--------------------------
+        plotting = False
+        if plotting:
+            qu = q[0:nyi*(nxi-1)]
+            QU = np.reshape(qu, (Xu.shape))
+            fig = plt.figure()
+            ax = plt.axes(projection='3d')
+            surf = ax.plot_surface(Xu, Yu, QU, rstride=1, cstride=1,\
+                    cmap=cm.plasma, linewidth=0, antialiased=True)
+            ax.set_xlabel('$xu$')
+            ax.set_ylabel('$yu$')
+            ax.view_init(30, 45)
+            plt.show()
+
+            qu_ex = q_test_ex[0:nyi*(nxi-1)]
+            QU_ex = np.reshape(qu_ex, (Xu.shape))
+            fig = plt.figure()
+            ax = plt.axes(projection='3d')
+            surf = ax.plot_surface(Xu, Yu, QU_ex, rstride=1, cstride=1,\
+                    cmap=cm.magma, linewidth=0, antialiased=True)
+            ax.set_xlabel('$xu$')
+            ax.set_ylabel('$yu$')
+            ax.view_init(30, 45)
+            plt.show()
+
+
+
         diff = q-q_test_ex
         dxdy.append(dxi)
         L2.append( LA.norm(diff) / len(q) ) 
         Linf.append(LA.norm(diff, np.inf))
-    
     err = Linf
     lin = linregress(np.log10(dxdy), np.log10(err))
     acc = lin.slope
