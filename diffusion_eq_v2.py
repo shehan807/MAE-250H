@@ -1,5 +1,6 @@
 from get_global import * 
 from init import *
+from scipy.stats import linregress
 import operators as op
 import operator_verf as opf
 import matplotlib.pyplot as plt
@@ -7,6 +8,7 @@ from matplotlib import cm
 from cgs import *
 from matplotlib.animation import FuncAnimation
 from scipy.sparse.linalg import cg
+import visualization as vis
 
 # Choose function with known analytic solution for the diffusion equation
 functions = {
@@ -27,9 +29,10 @@ Linf = []
 acc = 0
 qBC = {}
 
-dt = .01
+save = True
+dt = 1
 T = 1
-Nt = 10 #int(T/dt)
+Nt = int(T/dt)
 t = np.linspace(0, Nt*dt, Nt+1)
 alpha = .5 # Crank-Nicholson 
 nu = 1
@@ -128,6 +131,8 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
 
     # ---------- Begin Time-Stepping ---
     tn = 0
+    dt = dxi #dt * 0.3
+    Nt = int(T/dt)
     print(Nt)
     for tn in range(0, Nt):
     
@@ -160,7 +165,7 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
             A = np.diag(R[-1])
             q_np1 = LA.solve(A, b)
         else: 
-            [q_np1, Rq_np1] = Atimes(np.zeros(q_n.shape), b, 3, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, alpha, nu, dt, pinned=False)
+            [q_np1, Rq_np1] = Atimes(np.zeros(q_n.shape), b, 3, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, q_sizei, alpha, nu, dt, pinned=False)
 
 
         qu_np1 = q_np1[0:nyi*(nxi-1)]
@@ -171,8 +176,8 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
         qu_np1_ex = q_np1_ex[0][0:nyi*(nxi-1)]
 
         error = LA.norm(qu_np1 - qu_np1_ex, np.inf)
-        print('Time = %f' % ((tn+1)*dt))
-        print('Error b/w qu_np1 and qu_np1_ex: ' + str(error))
+        #print('Time = %f' % ((tn+1)*dt))
+        #print('Error b/w qu_np1 and qu_np1_ex: ' + str(error))
 
         # ---------- Plot U^n+1 ------------------
         
@@ -225,3 +230,9 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
             ax.set_ylabel('$yu$')
             ax.view_init(30, 45)
             plt.show()
+    Linf.append(LA.norm(qu_np1 - qu_np1_ex, np.inf))
+    dxdy.append(dt)
+err = Linf
+lin = linregress(np.log10(dxdy), np.log10(err))
+acc = lin.slope
+vis.plotL2vsGridSize(lin, dxdy, err, 'Diffusion_Eq', 'Diff. Eq.', save=save)

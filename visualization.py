@@ -31,8 +31,10 @@ def plotL2vsGridSize(linReg, dxdy, error, outFile, oprtr, save=False):
     fig = plt.figure(figsize=(8,6))
     
     ax = fig.add_subplot(1,1,1)
+    #ax.set_xlabel(r'$\Delta$ $t$', fontsize=16)
     ax.set_xlabel(r'$\Delta$ $x$, $\Delta$ $y$', fontsize=16)
     ax.set_ylabel(r'$L^{\infty}$ Norm, $||x||_{\infty}$', fontsize=16)
+    #ax.set_title(r"Temporal Convergence", fontsize=20) 
     ax.set_title(r"Spatial Convergence of " + oprtr + " Operator", fontsize=20) 
     ax.annotate(r"Log-Log Slope = $%.2f$" % (linReg.slope), 
             xy=(0.75, 0.05), 
@@ -53,7 +55,8 @@ def plotL2vsGridSize(linReg, dxdy, error, outFile, oprtr, save=False):
     return
 
 def plotVelocity(q, qBC, xu, xv, yu, yv, nx, ny, time, Re, drawNow, strmOn = True, quiverOn = False, save=True):
-    
+   
+
 
     figFilePath = "./Figures/"
     subDir = "Re" + str(Re) + "/"
@@ -94,6 +97,8 @@ def plotVelocity(q, qBC, xu, xv, yu, yv, nx, ny, time, Re, drawNow, strmOn = Tru
     plt.rc('xtick',labelsize=16)
     plt.rc('ytick',labelsize=16)
     
+    # ---------- Velocity Profiles 1D ------------------------------
+    
     fig1 = plt.figure(figsize=(8,6))
     ax1 = fig1.add_subplot(1,1,1)
     plt.scatter(yu, u_ce, marker='o', c='b', label='Parmar 2021 (Re = '+str(Re) + ')')
@@ -122,6 +127,7 @@ def plotVelocity(q, qBC, xu, xv, yu, yv, nx, ny, time, Re, drawNow, strmOn = Tru
             + "dx_{:.3f}".format(xu[1]-xu[0]).replace('.','p')\
             + '_vVALIDATION')
 
+    # ---------- Velocity Profiles 2D ------------------------------
     fig3 = plt.figure(figsize=(8,6))
     ax3 = fig3.add_subplot(1,1,1)
     ax3.set_xlim([0, 1])
@@ -138,6 +144,8 @@ def plotVelocity(q, qBC, xu, xv, yu, yv, nx, ny, time, Re, drawNow, strmOn = Tru
     
     if quiverOn:
         quiv = plt.quiver(X, Y, U_vert, V_vert, color='white')
+    
+    # ---------- Streamplots 2D ------------------------------
     if strmOn:
         strm = plt.streamplot(X, Y, U_vert, V_vert, color='white', linewidth=.5)
     if save:
@@ -146,4 +154,10 @@ def plotVelocity(q, qBC, xu, xv, yu, yv, nx, ny, time, Re, drawNow, strmOn = Tru
                 + "Re_" + str(Re) \
                 + "dx_{:.3f}".format(xu[1]-xu[0]).replace('.','p'))
     if drawNow:
+        plt.show()
+    vorticity = True
+    if vorticity:
+        w = (V[:,1:] - V[:,0:-1])/(xu[1]-xu[0]) - (U[1:, :] - U[0:-1, :])/(yv[1]-yv[0])
+        fig_vorti = plt.figure()
+        vort = plt.contour(X, Y, w)
         plt.show()

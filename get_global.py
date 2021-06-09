@@ -5,8 +5,8 @@ Global variables for NS solver.
 """
 import numpy as np
 filename = 'inputs.txt'
-filename = 'inputsLDCTest.txt'
-#filename = 'inputsDiffEqTest.txt'
+#filename = 'inputsLDCTest.txt'
+filename = 'inputsDiffEqTest.txt'
 #filename = 'inputsLapTest.txt'
 #filename = 'inputsAdvTest.txt'
 #filename = 'inputsDivTest.txt'

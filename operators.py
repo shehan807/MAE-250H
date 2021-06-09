@@ -498,7 +498,7 @@ def adv(q, qbc, u, v, p, dx, dy, nx, ny, q_size, pinned=True):
 
             advq[v[i,j]] = del_x_uy_vx + del_y_vy_vy
 
-    return -advq
+    return advq
 
 def S(q, u, v, p, dx, dy, nx, ny, q_size, alpha, nu, dt, pinned=True):
     

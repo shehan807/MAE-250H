@@ -21,10 +21,10 @@ outFile = 'output'+filename.split('inputs')[-1]
 #[dxdy, err, acc] = opf.test_div(dx, dy, nx, ny, Lx, Ly, p_size, outFile, save=True) 
 
 # Test Laplace Operator is Second-Order Accurate
-[dxdy, err, acc] = opf.test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 
+#[dxdy, err, acc] = opf.test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 
 
 # Test Advective Operator is Second-Order Accurate
-#[dxdy, err, acc] = opf.test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 
+[dxdy, err, acc] = opf.test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, save=True) 
 
 # Test CGS Solver 
 

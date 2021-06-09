@@ -1,3 +1,5 @@
+import visualization as vis
+from scipy.stats import linregress
 from get_global import * 
 from init import *
 import operators as op
@@ -16,7 +18,7 @@ functions = {
 
         }
 
-
+save=True
 u_xyt = functions["u_xyt"]
 v_xyt = functions["v_xyt"]
 
@@ -27,9 +29,9 @@ acc = 0
 qBC_nm1 = {}
 qBC = {}
 
-dt = 1e-1
+dt = .004
 T = 1
-Nt = 10 #int(T/dt)
+Nt = int(T/dt)
 t = np.linspace(0, Nt*dt, Nt)
 alpha = .5 # Crank-Nicholson 
 nu = 0.05
@@ -153,6 +155,9 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
         ax.view_init(30, 45)
         plt.show()
     
+    dt = dxi*.1
+    T = 1
+    Nt = int(T/dt)
 
     # ---------- Begin Time-Stepping ---
     for tn in range(1, Nt):
@@ -191,7 +196,7 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
             A = np.diag(R[-1])
             q_np1 = LA.solve(A, b)
         else: 
-            [q_np1, Rq_np1] = Atimes(np.zeros(q_n.shape), b, 3, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, alpha, nu, dt, pinned=False)
+            [q_np1, Rq_np1] = Atimes(np.zeros(q_n.shape), b, 3, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, q_sizei, alpha, nu, dt, pinned=False)
 
 
         qu_np1 = q_np1[0:nyi*(nxi-1)]
@@ -268,17 +273,25 @@ for dxi, dyi, nxi, nyi, q_sizei in grid:
             ax.view_init(30, 45)
             plt.show()
     
-    #print(U_data)
-    Xu_data, Tu_data = np.meshgrid(xu, time)
-    U_data = np.array(U_data)
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    #plt.contourf(Xu, Yu, q_u_exact)
-    #ax.contour3D(Xu, Yu, q_u_exact, 50)
-    surf = ax.plot_surface(Xu_data, Tu_data, U_data, rstride=1, cstride=1,\
-            cmap=cm.viridis, linewidth=0, antialiased=True)
-    ax.set_zlim(0, 0.2)
-    ax.set_xlabel('$x$')
-    ax.set_ylabel('$time$')
-    #ax.view_init(30, 45)
-    plt.show()
+
+    Linf.append(LA.norm(qu_np1 - qu_np1_ex, np.inf))
+    dxdy.append(dxi)
+err = Linf
+lin = linregress(np.log10(dxdy), np.log10(err))
+acc = lin.slope
+vis.plotL2vsGridSize(lin, dxdy, err, 'Burgers_Eq', 'Burgers Eq.', save=save)
+    
+    ##print(U_data)
+    #Xu_data, Tu_data = np.meshgrid(xu, time)
+    #U_data = np.array(U_data)
+    #fig = plt.figure()
+    #ax = plt.axes(projection='3d')
+    ##plt.contourf(Xu, Yu, q_u_exact)
+    ##ax.contour3D(Xu, Yu, q_u_exact, 50)
+    #surf = ax.plot_surface(Xu_data, Tu_data, U_data, rstride=1, cstride=1,\
+    #        cmap=cm.viridis, linewidth=0, antialiased=True)
+    #ax.set_zlim(0, 0.2)
+    #ax.set_xlabel('$x$')
+    #ax.set_ylabel('$time$')
+    ##ax.view_init(30, 45)
+    #plt.show()

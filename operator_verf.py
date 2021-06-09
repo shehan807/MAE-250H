@@ -113,7 +113,7 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
             "divf1" : lambda x, y : x + y*0,
             "fx2"   : lambda x, y : np.sin(x)*np.cos(y), 
             "fy2"   : lambda x, y : -np.cos(x)*np.sin(y),
-            "fxy2"  : lambda x, y : np.sin(x)*np.cos(y) - np.cos(x)*np.sin(y),
+            "fxy2"  : lambda x, y : np.cos(x)*np.cos(y) - np.cos(x)*np.cos(y),
             "divf2" : lambda x, y : x*0. + y*0.
             }
 
@@ -172,8 +172,7 @@ def test_div(dx, dy, nx, ny, Lx, Ly, g_size, outFile, plots=True, save=False):
         gDiv = op.div(q_test, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) 
         gBC  =  op.bcdiv(qBC, ui, vi, pi, dxi, dyi, nxi, nyi, g_sizei, pinned=False) 
         g = gDiv + gBC 
-        
-        dxdy.append(dyi)
+        dxdy.append(dxi)
         L2.append( LA.norm(g-divf_ex) / len(g) ) 
         Linf.append(LA.norm(g-divf_ex, np.inf))
     
@@ -277,6 +276,11 @@ def test_laplace(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False
         LqBC  =  op.bclap(q_test, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei, pinned=False) 
         q = Lq + LqBC 
         
+        checkL_T = False
+        if checkL_T: 
+            A = np.diag(q)
+            #LA.norm(A-A.T, np.inf) -> results in segmentation faults for larger cases
+
         # ------------------Plot U or V--------------------------
         plotting = False
         if plotting:
@@ -336,10 +340,10 @@ def test_adv(dx, dy, nx, ny, Lx, Ly, q_size, outFile, plots=True, save=False):
                                     - np.cos(y)*np.sin(x))
             }
 
-    fu = functions["fu2"]
-    fv = functions["fv2"]  
-    Nx = functions["Nx2"]  
-    Ny = functions["Ny2"]  
+    fu = functions["fu1"]
+    fv = functions["fv1"]  
+    Nx = functions["Nx1"]  
+    Ny = functions["Ny1"]  
 
     dxdy = []
     L2 = []

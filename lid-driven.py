@@ -10,9 +10,9 @@ from scipy.sparse.linalg import cg
 import visualization as vis
 import csv
 import pandas as pd 
+from ma import *
 
 plotCurrent = False
-
 
 dxdy = []
 L2 = []
@@ -27,7 +27,7 @@ Nt = int(T/dt)
 print('Nt = %d' % (Nt))
 t = np.linspace(0, Nt*dt, Nt)
 alpha = .5 # Crank-Nicholson 
-Re = 400
+Re = 100
 nu = 1./Re
 a = 2
 
@@ -102,7 +102,8 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
         ax.set_ylabel('$yu$')
         ax.view_init(30, 45)
         plt.show()
-     
+    
+    X = np.reshape(q_nm1[0:nyi*(nxi-1)], (Xu.shape))
 
     # ---------- Begin Time-Stepping ---
     for tn in range(1, Nt+1):
@@ -130,7 +131,7 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
         
         Aq_nm1 = op.adv(q_nm1, qBC_nm1, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei)
         Aq_n = op.adv(q_n, qBC, ui, vi, pi, dxi, dyi, nxi, nyi, q_sizei)
-        adv = np.multiply(0.5*dt, np.subtract(np.multiply(3, Aq_n), Aq_nm1))
+        adv = np.multiply(-0.5*dt, np.subtract(np.multiply(3, Aq_n), Aq_nm1))
         
         b = Sq_n + bcL + adv
         
@@ -158,12 +159,16 @@ for dxi, dyi, nxi, nyi, q_sizei, g_sizei in grid:
         # ---------- Visualization & Save Data ------------------------------
         #vis.plotVelocity(q_n, qBC, xu, xv, yu, yv, nxi, nyi, dt*tn, Re, drawNow = True, quiverOn = True)
 
-        if (tn % 200) == 0:
-            vis.plotVelocity(q_n, qBC, xu, xv, yu, yv, nxi, nyi, dt*tn, Re, drawNow = False, quiverOn = False)
-            print('Time = %f' % ((tn+1)*dt))
-            #plotCurrent = True
+        #if (tn % 5) == 0:
+        #    vis.plotVelocity(q_n, qBC, xu, xv, yu, yv, nxi, nyi, dt*tn, Re, drawNow = False, quiverOn = False)
+        #    print('Time = %f' % ((tn+1)*dt))
+        #    #plotCurrent = True
+       
+        U_data = np.reshape(q_n[0:nyi*(nxi-1)], (Xu.shape)) 
+        X = np.concatenate((X,U_data))
+        if (tn % 5) == 0:
+            modal_analysis(X, Xu, Yu)
 
-        
         # ---------- Save X-Data at y = 0.5 ------------------
         plotXTime = False
         if plotXTime:
