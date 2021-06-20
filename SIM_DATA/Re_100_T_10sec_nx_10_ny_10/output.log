@@ -1,0 +1,47 @@
+----------------------------------------
+SIMULATION INPUTS
+2021-06-20 16:26:19.985618
+----------------------------------------
+
+nx = 10.0
+ny = 10.0
+Lx = 1.0
+Ly = 1.5
+dt = 0.1
+T = 10.0
+Re = 100.0
+CFL Number = 1.0
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+----------------------------------------
+SIMULATION INPUTS
+2021-06-20 16:27:14.764372
+----------------------------------------
+
+nx = 10.0
+ny = 10.0
+Lx = 1.0
+Ly = 1.5
+dt = 0.1
+T = 10.0
+Re = 100.0
+CFL Number = 1.0
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+1.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+10.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+20.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+30.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+40.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+50.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+60.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+70.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+80.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+90.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+100.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)51 Iterations for CGS Convergence (PP Eq.)
+
+Simulation Completed in 7.674 sec

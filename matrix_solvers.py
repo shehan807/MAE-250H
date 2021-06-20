@@ -108,7 +108,7 @@ def Atimes(x, b, eqn, pinned=False, **kwargs):
         #plt.scatter(list(range(0,len(del_new_vals))), del_new_vals, marker='o')
         #plt.show()
         #print('CGS cnverged in %d iterations.' % (i))
-        return [x, Ax]
+        return [x, Ax, i]
 
 def testMatrix(ndim, seed = None):
     

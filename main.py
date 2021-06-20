@@ -3,6 +3,7 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import time 
 
 import config as cfg
 import discrete_operators as op
@@ -11,7 +12,7 @@ import visualization as vis
 
 # ---------- Initialize Simulation Domain ------------------
 
-cfg.init('inputsTest.txt')
+cfg.init('inputsMAIN.txt')
 # U Positions
 xu = cfg.dx*(1. + np.arange(0, cfg.nx-1))
 yu = cfg.dy*(0.5 + np.arange(0, cfg.ny)) 
@@ -53,9 +54,10 @@ qBC = qBC_nm1
 bcL_n = op.bclap(q_n, qBC) 
 
 # ---------- Begin Time-Stepping ---
+start_time = time.time()
 Nt = int(cfg.T/cfg.dt)
-for tn in range(1, Nt+1):
-
+for tn in range(1, Nt+1): 
+    
     # ---------- Set Boundary Conditions for n+1 ------------
     qBC_np1 = qBC
     bcL_np1 = op.bclap(q_n, qBC_np1)
@@ -68,7 +70,7 @@ for tn in range(1, Nt+1):
     adv = np.multiply(-CN*cfg.dt, np.subtract(np.multiply(3, Aq_n), Aq_nm1))
     b = Sq_n + bcL + adv
     
-    [q_F, Rq_np1] = Atimes(np.zeros(q_n.shape), b, 3)
+    [q_F, Rq_np1, iterMo] = Atimes(np.zeros(q_n.shape), b, 3)
     
     # ---------- Pressure Poisson Eq. ----------------------------------------
     Du_F = op.div(q_F) + op.bcdiv(qBC) 
@@ -76,7 +78,7 @@ for tn in range(1, Nt+1):
     ppe_rhs = np.multiply(1./cfg.dt, Du_F)
     b2 = -ppe_rhs 
 
-    [P_np1, Ax_PPE] = Atimes(np.zeros(cfg.p_size), b2, 2)
+    [P_np1, Ax_PPE, iterPPE] = Atimes(np.zeros(cfg.p_size), b2, 2)
     
     # ---------- Projection Step ----------------------------------------
     GP_np1 = op.grad(P_np1) 
@@ -88,4 +90,24 @@ for tn in range(1, Nt+1):
     q_n = q_np1
     bcL_n = bcL_np1
     
-    break
+    # ---------- Output to Log File  ----------------------------------------
+    if ((tn % int(0.1*Nt)) == 0) or (tn == 1): # Print outputs every 10% of simulation or at t = 0
+        with open(cfg.outputPath + 'output.log', 'a+') as log:
+            log.write('\r%(comp).1F%% complete:' %{'comp': (tn/Nt)*100})
+            log.write('\r%(iter).d Iterations for CGS Convergence (Mo. Eq.)' %{'iter': iterMo})
+            log.write('\r%(iter).d Iterations for CGS Convergence (PP Eq.)\n' %{'iter': iterPPE})
+    if tn == Nt: 
+        sim_time = time.time() - start_time
+        if sim_time < 60:
+            time_units = 'sec'
+        elif sim_time > 60 and sim_time < 3600:
+            sim_time = sim_time / 60
+            time_units = 'min'
+        elif sim_time > 3600:
+            sim_time = sim_time / 3600
+            time_units = 'hrs'
+
+        with open(cfg.outputPath + 'output.log', 'a+') as log:
+            log.write('\nSimulation Completed in %.3f %s\n' % (sim_time, time_units))
+        
+    #break

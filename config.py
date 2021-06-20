@@ -5,9 +5,13 @@ Initialize global variables for NS solver.
 """
 def init(filename):
     import numpy as np
-    global u, v, p, nx, ny, dx, dy, Lx, Ly, q_size, p_size, dt, T, Re 
+    import os
+    import datetime
+    global u, v, p, nx, ny, dx, dy, Lx, Ly, q_size, p_size, dt, T, Re, outputPath
     
-    inpFilePath = './InputFiles/'
+    inpFilePath = './SIM_DATA/InputFiles/'
+    
+
     pinned = True # Hard-coded and should stay true for NS solver
     # Read in Vriables from Input File
     with open(inpFilePath + filename, 'r') as inp:     
@@ -79,3 +83,19 @@ def init(filename):
                 raise IndexError('wrong pressure index (pinned)')
             elif not pinned and (ind != (nx*ny)):
                 raise IndexError('wrong pressure index (not pinned)')
+
+        outputPath = './SIM_DATA/Re_' + str(int(Re)) \
+                + '_T_{:d}sec'.format(T) \
+                + '_nx_' + str(nx) + '_ny_' + str(ny) + '/'
+
+        if not os.path.isdir(outputPath):
+            os.mkdir(outputPath)
+
+        with open(outputPath + 'output.log', 'a+') as log:
+            log.write(40*'-'+'\nSIMULATION INPUTS\n'\
+                    + str(datetime.datetime.now()) + '\n' \
+                    + 40*'-'+2*'\n')
+            for key in inputs:
+                log.write('%s = %s\n' % (key, inputs[key]))
+            log.write('CFL Number = %s\n' % (dt/dx))
+            log.write(40*'-'+'\nSIMULATION OUTPUTS\n' + 40*'-'+2*'\n')
