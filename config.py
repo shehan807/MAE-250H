@@ -44,7 +44,7 @@ def init(filename):
     
         dt = inputs["dt"]
         T  = int(inputs["T"])
-        Re = inputs["Re"]
+        Re = int(inputs["Re"])
 
         u = np.ndarray((nx-1, ny), dtype=object)
         v = np.ndarray((nx, ny-1), dtype=object)
@@ -84,7 +84,7 @@ def init(filename):
             elif not pinned and (ind != (nx*ny)):
                 raise IndexError('wrong pressure index (not pinned)')
 
-        outputPath = './SIM_DATA/Re_' + str(int(Re)) \
+        outputPath = './SIM_DATA/Re_' + str(Re) \
                 + '_T_{:d}sec'.format(T) \
                 + '_nx_' + str(nx) + '_ny_' + str(ny) + '/'
 

@@ -10,7 +10,7 @@ import discrete_operators as op
 from matrix_solvers import Atimes
 import visualization as vis
 
-# ---------- Initialize Simulation Domain ------------------
+# iINITIALIZE SIMULATION DOMAIN
 
 cfg.init('inputsMAIN.txt')
 # U Positions
@@ -28,10 +28,10 @@ q_nm1 = np.zeros(cfg.q_size)
 qBC_nm1 = {}
 qBC = {}
 
-# Other Settings
+# TIME INTEGRATION SETTINGS
 CN = 0.5 # alpha value for crank-nicholson method
 
-# ---------- Set Boundary Conditions for n - 0-------------
+# BC FOR n = 0
 
 # Top Wall BC
 qBC_nm1["uT"] = np.ones(xu.shape)
@@ -46,23 +46,23 @@ qBC_nm1["vL"] = yv*0
 qBC_nm1["uR"] = yu*0
 qBC_nm1["vR"] = yv*0
 
-# ---------- SOLVE FOR u(x,y,tn) WHERE n  ------------
+# SOLVE FOR u(x,y,tn) 
 
-# ---------- Set Boundary Conditions for n ------------
+# BC FOR n 
 q_n = q_nm1 
 qBC = qBC_nm1
 bcL_n = op.bclap(q_n, qBC) 
 
-# ---------- Begin Time-Stepping ---
+# BEGIN TIME STEPPING-
 start_time = time.time()
 Nt = int(cfg.T/cfg.dt)
 for tn in range(1, Nt+1): 
     
-    # ---------- Set Boundary Conditions for n+1 ------------
+    # BC FOR n + 1
     qBC_np1 = qBC
     bcL_np1 = op.bclap(q_n, qBC_np1)
     
-    # ---------- Momentum Eq.  ----------------------------------------
+    # MOMENTUM EQUATION
     bcL = np.multiply((CN*cfg.dt)/cfg.Re, np.add(bcL_n, bcL_np1))
     Sq_n = op.S(q_n) 
     Aq_nm1 = op.adv(q_nm1, qBC_nm1)
@@ -72,7 +72,7 @@ for tn in range(1, Nt+1):
     
     [q_F, Rq_np1, iterMo] = Atimes(np.zeros(q_n.shape), b, 3)
     
-    # ---------- Pressure Poisson Eq. ----------------------------------------
+    # PRESSURE POISSON EQUATION
     Du_F = op.div(q_F) + op.bcdiv(qBC) 
     
     ppe_rhs = np.multiply(1./cfg.dt, Du_F)
@@ -80,7 +80,7 @@ for tn in range(1, Nt+1):
 
     [P_np1, Ax_PPE, iterPPE] = Atimes(np.zeros(cfg.p_size), b2, 2)
     
-    # ---------- Projection Step ----------------------------------------
+    # PROJECTION STEP
     GP_np1 = op.grad(P_np1) 
     RinvGP_np1 = op.Rinv(GP_np1)
     q_np1 = np.subtract(q_F, np.multiply(cfg.dt, RinvGP_np1)) 
@@ -90,12 +90,35 @@ for tn in range(1, Nt+1):
     q_n = q_np1
     bcL_n = bcL_np1
     
-    # ---------- Output to Log File  ----------------------------------------
-    if ((tn % int(0.1*Nt)) == 0) or (tn == 1): # Print outputs every 10% of simulation or at t = 0
+    # UPDATE LOG FILE AND SAVE DATA
+    [X, Y, U, V] = vis.getFrameData(q_n, qBC, tn*cfg.dt)
+    
+    if tn == 1:
+        Udata = np.vstack(([U], [np.zeros(np.shape(U))]))
+        Vdata = np.vstack(([V], [np.zeros(np.shape(V))]))
+    
+    elif tn == Nt: 
+        Udata = np.vstack((Udata, [U]))
+        Vdata = np.vstack((Vdata, [V]))
+        
+        np.save(cfg.outputPath+'X_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'),X)
+        np.save(cfg.outputPath+'Y_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'),Y)
+        np.save(cfg.outputPath+'U_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'), Udata)    
+        np.save(cfg.outputPath+'V_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'), Vdata)    
+    else:
+        Udata = np.vstack((Udata, [U]))
+        Vdata = np.vstack((Vdata, [V]))
+
+    if ((tn % int(0.2*Nt)) == 0) or (tn == 1): # Print outputs every 10% of simulation or at t = 0
         with open(cfg.outputPath + 'output.log', 'a+') as log:
             log.write('\r%(comp).1F%% complete:' %{'comp': (tn/Nt)*100})
+            log.write('\rSimultation Time: %.3f sec (dt = %.3e)' % (tn*cfg.dt, cfg.dt))
             log.write('\r%(iter).d Iterations for CGS Convergence (Mo. Eq.)' %{'iter': iterMo})
             log.write('\r%(iter).d Iterations for CGS Convergence (PP Eq.)\n' %{'iter': iterPPE})
+        
+        vis.plot1DProfile(X, Y, U, V, tn*cfg.dt)
+        vis.plot2DStreamPlot(X, Y, U, V, tn*cfg.dt)
+
     if tn == Nt: 
         sim_time = time.time() - start_time
         if sim_time < 60:
@@ -109,5 +132,3 @@ for tn in range(1, Nt+1):
 
         with open(cfg.outputPath + 'output.log', 'a+') as log:
             log.write('\nSimulation Completed in %.3f %s\n' % (sim_time, time_units))
-        
-    #break

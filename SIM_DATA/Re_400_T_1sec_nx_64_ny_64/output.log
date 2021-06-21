@@ -1,0 +1,30 @@
+----------------------------------------
+SIMULATION INPUTS
+2021-06-20 17:16:59.187241
+----------------------------------------
+
+nx = 64.0
+ny = 64.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.01
+T = 1.0
+Re = 400.0
+CFL Number = 0.64
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+1.0% complete:7 Iterations for CGS Convergence (Mo. Eq.)294 Iterations for CGS Convergence (PP Eq.)
+10.0% complete:7 Iterations for CGS Convergence (Mo. Eq.)296 Iterations for CGS Convergence (PP Eq.)
+20.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)298 Iterations for CGS Convergence (PP Eq.)
+30.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)299 Iterations for CGS Convergence (PP Eq.)
+40.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)299 Iterations for CGS Convergence (PP Eq.)
+50.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)300 Iterations for CGS Convergence (PP Eq.)
+60.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)301 Iterations for CGS Convergence (PP Eq.)
+70.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)300 Iterations for CGS Convergence (PP Eq.)
+80.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)289 Iterations for CGS Convergence (PP Eq.)
+90.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)301 Iterations for CGS Convergence (PP Eq.)
+100.0% complete:6 Iterations for CGS Convergence (Mo. Eq.)302 Iterations for CGS Convergence (PP Eq.)
+
+Simulation Completed in 28.919 min
