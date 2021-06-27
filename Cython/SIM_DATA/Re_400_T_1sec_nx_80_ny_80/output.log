@@ -1,0 +1,19 @@
+----------------------------------------
+SIMULATION INPUTS
+2021-06-26 13:07:21.793389
+----------------------------------------
+
+nx = 80.0
+ny = 80.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.01
+T = 1.0
+Re = 400.0
+CFL Number = 0.7999999999999999
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+1.0% complete:Simultation Time: 0.010 sec (dt = 1.000e-02)8 Iterations for CGS Convergence (Mo. Eq.)370 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 59.017 sec
+10.0% complete:Simultation Time: 0.100 sec (dt = 1.000e-02)7 Iterations for CGS Convergence (Mo. Eq.)372 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 649.925 sec

@@ -1,0 +1,92 @@
+----------------------------------------
+SIMULATION INPUTS
+2021-06-26 12:52:48.332040
+----------------------------------------
+
+nx = 12.0
+ny = 12.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.005
+T = 1.0
+Re = 400.0
+CFL Number = 0.060000000000000005
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+----------------------------------------
+SIMULATION INPUTS
+2021-06-26 12:58:07.377800
+----------------------------------------
+
+nx = 12.0
+ny = 12.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.005
+T = 1.0
+Re = 400.0
+CFL Number = 0.060000000000000005
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+----------------------------------------
+SIMULATION INPUTS
+2021-06-26 13:02:38.382444
+----------------------------------------
+
+nx = 12.0
+ny = 12.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.005
+T = 1.0
+Re = 400.0
+CFL Number = 0.060000000000000005
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+0.5% complete:Simultation Time: 0.005 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)59 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 0.366 sec
+----------------------------------------
+SIMULATION INPUTS
+2021-06-26 13:05:03.455819
+----------------------------------------
+
+nx = 12.0
+ny = 12.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.005
+T = 1.0
+Re = 400.0
+CFL Number = 0.060000000000000005
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+0.5% complete:Simultation Time: 0.005 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)59 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 0.227 sec
+5.0% complete:Simultation Time: 0.050 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)62 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 1.931 sec
+10.0% complete:Simultation Time: 0.100 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)62 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.234 sec
+15.0% complete:Simultation Time: 0.150 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)62 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.290 sec
+20.0% complete:Simultation Time: 0.200 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)62 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.299 sec
+25.0% complete:Simultation Time: 0.250 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)62 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.263 sec
+30.0% complete:Simultation Time: 0.300 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.265 sec
+35.0% complete:Simultation Time: 0.350 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.351 sec
+40.0% complete:Simultation Time: 0.400 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.403 sec
+45.0% complete:Simultation Time: 0.450 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.333 sec
+50.0% complete:Simultation Time: 0.500 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.321 sec
+55.0% complete:Simultation Time: 0.550 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.409 sec
+60.0% complete:Simultation Time: 0.600 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.542 sec
+65.0% complete:Simultation Time: 0.650 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.541 sec
+70.0% complete:Simultation Time: 0.700 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.510 sec
+75.0% complete:Simultation Time: 0.750 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.394 sec
+80.0% complete:Simultation Time: 0.800 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)61 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.365 sec
+85.0% complete:Simultation Time: 0.850 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.326 sec
+90.0% complete:Simultation Time: 0.900 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.334 sec
+95.0% complete:Simultation Time: 0.950 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.362 sec
+100.0% complete:Simultation Time: 1.000 sec (dt = 5.000e-03)4 Iterations for CGS Convergence (Mo. Eq.)63 Iterations for CGS Convergence (PP Eq.)Wall Clock Time: 2.403 sec
+
+Simulation Completed in 47.114 sec

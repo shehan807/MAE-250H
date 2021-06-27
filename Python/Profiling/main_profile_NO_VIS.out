@@ -1,0 +1,829 @@
+Timer unit: 1e-06 s
+
+Total time: 1.244 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: grad at line 9
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+     9                                           @profile
+    10                                           def grad(g, pinned = True): # Gradient Operator
+    11                                               
+    12      1288       5133.0      4.0      0.4      q = np.zeros(cfg.q_size)
+    13                                               
+    14                                               # Be careful with p(0,0) for the pinned pressure location 
+    15                                               
+    16                                               # compute x-dir gradient, u
+    17      2576       3396.0      1.3      0.3      for j in [0]:
+    18      2576       3210.0      1.2      0.3          for i in [0]:
+    19      1288       1556.0      1.2      0.1              if pinned:
+    20      1288       3508.0      2.7      0.3                  q[cfg.u[i,j]] = (g[cfg.p[i+1,j]]            )/cfg.dx       # - g[cfg.p[0,0]]/cfg.dx = 0
+    21                                                       else: 
+    22                                                           q[cfg.u[i,j]] = (g[cfg.p[i+1,j]] - g[cfg.p[0,0]])/cfg.dx       # 
+    23     14168      17773.0      1.3      1.4          for i in range(1,cfg.nx-1):
+    24     12880      29319.0      2.3      2.4              q[cfg.u[i,j]] = (g[cfg.p[i+1,j]] - g[cfg.p[i,j]])/cfg.dx       # 
+    25     15456      18632.0      1.2      1.5      for j in range(1,cfg.ny):
+    26    170016     214732.0      1.3     17.3          for i in range(0,cfg.nx-1):
+    27    155848     331208.0      2.1     26.6              q[cfg.u[i,j]] = (g[cfg.p[i+1,j]] - g[cfg.p[i,j]])/cfg.dx       # 
+    28                                           
+    29                                               # compute y-dir gradient, v
+    30      2576       3148.0      1.2      0.3      for j in [0]:
+    31      2576       3044.0      1.2      0.2          for i in [0]:
+    32      1288       1509.0      1.2      0.1              if pinned:
+    33      1288       2930.0      2.3      0.2                  q[cfg.v[i,j]] = (g[cfg.p[i,j+1]]            )/cfg.dy       # - g[cfg.p[0,0]]/cfg.dy = 0
+    34                                                       else: 
+    35                                                           q[cfg.v[i,j]] = (g[cfg.p[i,j+1]] - g[cfg.p[0,0]])/cfg.dy       #  
+    36                                                           
+    37     15456      20055.0      1.3      1.6          for i in range(1,cfg.nx):
+    38     14168      30465.0      2.2      2.4              q[cfg.v[i,j]] = (g[cfg.p[i,j+1]] - g[cfg.p[i,j]])/cfg.dy       # 
+    39                                               
+    40     14168      17121.0      1.2      1.4      for j in range(1,cfg.ny-1):
+    41    167440     206259.0      1.2     16.6          for i in range(0,cfg.nx):
+    42    154560     329398.0      2.1     26.5              q[cfg.v[i,j]] = (g[cfg.p[i,j+1]] - g[cfg.p[i,j]])/cfg.dy       # 
+    43                                               
+    44      1288       1601.0      1.2      0.1      return q
+
+Total time: 1.3391 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: div at line 46
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    46                                           @profile
+    47                                           def div(q, pinned=True): # Divergence Operator
+    48                                               
+    49      1288       1957.0      1.5      0.1      if pinned:
+    50      1288       6157.0      4.8      0.5          g = np.zeros(cfg.p_size)
+    51                                               elif not pinned: 
+    52                                                   g = np.zeros(cfg.p_size+1)
+    53                                           
+    54                                               # Bottom Row of Grid
+    55      2576       3230.0      1.3      0.2      for j in [0]:
+    56     14168      17068.0      1.2      1.3          for i in range(1,cfg.nx-1):
+    57     25760      45090.0      1.8      3.4              g[cfg.p[i,j]] = ( q[cfg.u[i,j]] - q[cfg.u[i-1, j]])/cfg.dx \
+    58     12880      19366.0      1.5      1.4                        + ( q[cfg.v[i,j]]               )/cfg.dy      
+    59                                                                 #             - q[cfg.v[i,j-1]]  /cfg.dy
+    60                                               # Bottom Right 
+    61      2576       3019.0      1.2      0.2      for j in [0]:
+    62      2576       3389.0      1.3      0.3          for i in [cfg.nx-1]:
+    63      2576       5614.0      2.2      0.4              g[cfg.p[i,j]] = (           - q[cfg.u[i-1,j]])/cfg.dx  \
+    64      1288       2008.0      1.6      0.1                        + ( q[cfg.v[i,j]]              )/cfg.dy       
+    65                                                                 #   q[cfg.u[i,j]]               /cfg.dx   
+    66                                                                 #             - q[cfg.v[i,j-1]] /cfg.dy
+    67                                               # Left Wall
+    68     14168      19147.0      1.4      1.4      for j in range(1, cfg.ny-1):
+    69     25760      30714.0      1.2      2.3          for i in [0]:
+    70     25760      40150.0      1.6      3.0              g[cfg.p[i,j]] = ( q[cfg.u[i,j]]              )/cfg.dx \
+    71     12880      23609.0      1.8      1.8                        + ( q[cfg.v[i,j]] - q[cfg.v[i,j-1]])/cfg.dy
+    72                                                                 #             - q[cfg.u[i-1,j]] /cfg.dx
+    73                                               # Right Wall 
+    74     14168      16543.0      1.2      1.2      for j in range(1,cfg.ny-1):
+    75     25760      31521.0      1.2      2.4          for i in [cfg.nx-1]:
+    76     25760      41220.0      1.6      3.1              g[cfg.p[i,j]] = (           - q[cfg.u[i-1,j]])/cfg.dx \
+    77     12880      23548.0      1.8      1.8                        + ( q[cfg.v[i,j]] - q[cfg.v[i,j-1]])/cfg.dy
+    78                                                                 #   q[cfg.u[i,j]]               /cfg.dx
+    79                                               # Top Wall 
+    80      2576       3213.0      1.2      0.2      for j in [cfg.ny-1]:
+    81     14168      17232.0      1.2      1.3          for i in range(1,cfg.nx-1):
+    82     25760      46308.0      1.8      3.5              g[cfg.p[i,j]] = ( q[cfg.u[i,j]] - q[cfg.u[i-1,j]])/cfg.dx \
+    83     12880      21565.0      1.7      1.6                        + (           - q[cfg.v[i,j-1]])/cfg.dy
+    84                                                                 #   q[cfg.v[i,j]]               /cfg.dy
+    85                                               # Top Left Corner 
+    86      2576       3154.0      1.2      0.2      for j in [cfg.ny-1]:
+    87      2576       3266.0      1.3      0.2          for i in [0]:
+    88      2576       4056.0      1.6      0.3              g[cfg.p[i,j]] = ( q[cfg.u[i,j]]              )/cfg.dx \
+    89      1288       2117.0      1.6      0.2                        + (           - q[cfg.v[i,j-1]])/cfg.dy
+    90                                                                 #             - q[cfg.u[i-1,j]] /cfg.dx
+    91                                                                 #   q[cfg.v[i,j]]               /cfg.dy
+    92                                               # Top Right Corner 
+    93      2576       3168.0      1.2      0.2      for j in [cfg.ny-1]:
+    94      2576       3474.0      1.3      0.3          for i in [cfg.nx-1]:
+    95      2576       4164.0      1.6      0.3              g[cfg.p[i,j]] = (           - q[cfg.u[i-1,j]])/cfg.dx \
+    96      1288       2074.0      1.6      0.2                        + (           - q[cfg.v[i,j-1]])/cfg.dy
+    97                                                                 #   q[cfg.u[i,j]]               /cfg.dx
+    98                                                                 #   q[cfg.v[i,j]]               /cfg.dy
+    99                                               # Interior Points 
+   100     14168      16933.0      1.2      1.3      for j in range(1,cfg.ny-1):
+   101    141680     176614.0      1.2     13.2          for i in range(1,cfg.nx-1):
+   102    257600     449763.0      1.7     33.6              g[cfg.p[i,j]] = ( q[cfg.u[i,j]] - q[cfg.u[i-1,j]])/cfg.dx \
+   103    128800     246955.0      1.9     18.4                        + ( q[cfg.v[i,j]] - q[cfg.v[i,j-1]])/cfg.dy
+   104      1288       1695.0      1.3      0.1      return g
+
+Total time: 0.004437 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: bcdiv at line 106
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   106                                           @profile
+   107                                           def bcdiv(qbc, pinned=True):
+   108                                               """
+   109                                               INPUTS: 
+   110                                               ------
+   111                                               qbc - dictionary with 8 keys (u and v 
+   112                                               boundary conditions for each wall)
+   113                                               """
+   114        20         54.0      2.7      1.2      if pinned:
+   115        20         93.0      4.7      2.1          bcD = np.zeros(cfg.p_size)
+   116                                               elif not pinned:
+   117                                                   bcD = np.zeros(cfg.p_size+1)
+   118                                           
+   119                                           
+   120        20         38.0      1.9      0.9      uB, uL, uR, uT = qbc["uB"], qbc["uL"], qbc["uR"], qbc["uT"]
+   121        20        148.0      7.4      3.3      vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
+   122                                           
+   123                                           
+   124                                               # Bottom
+   125        40         54.0      1.4      1.2      for j in [0]:
+   126       220        307.0      1.4      6.9          for i in range(1, cfg.nx-1):
+   127       200        390.0      1.9      8.8              bcD[cfg.p[i,j]] = - vB[i]/cfg.dy
+   128                                               # Bottom Right
+   129        40         43.0      1.1      1.0      for j in [0]:
+   130        40         50.0      1.2      1.1          for i in [cfg.nx-1]:
+   131        20         43.0      2.1      1.0              bcD[cfg.p[i,j]] = uR[j]/cfg.dx - vB[i]/cfg.dy
+   132                                               # Left Wall 
+   133       220        270.0      1.2      6.1      for j in range(1,cfg.ny-1):
+   134       400        513.0      1.3     11.6          for i in [0]:
+   135       200        473.0      2.4     10.7              bcD[cfg.p[i,j]] = - uL[j]/cfg.dx
+   136                                               # Right Wall
+   137       220        257.0      1.2      5.8      for j in range(1, cfg.ny-1):
+   138       400        484.0      1.2     10.9          for i in [cfg.nx-1]:
+   139       200        298.0      1.5      6.7              bcD[cfg.p[i,j]] = uR[j]/cfg.dx
+   140                                                       
+   141                                               # Top Wall 
+   142        40         49.0      1.2      1.1      for j in [cfg.ny-1]:
+   143       220        261.0      1.2      5.9          for i in range(1,cfg.nx-1):
+   144       200        325.0      1.6      7.3              bcD[cfg.p[i,j]] = vT[i]/cfg.dy
+   145                                               # Top Left Corner
+   146        40         45.0      1.1      1.0      for j in [cfg.ny-1]:
+   147        40         46.0      1.1      1.0          for i in [0]:
+   148        20         40.0      2.0      0.9              bcD[cfg.p[i,j]] = -uL[j]/cfg.dx + vT[i]/cfg.dy
+   149                                               # Top Right Corner 
+   150        40         50.0      1.2      1.1      for j in [cfg.ny-1]:
+   151        40         48.0      1.2      1.1          for i in [cfg.nx-1]:
+   152        20         35.0      1.8      0.8              bcD[cfg.p[i,j]] = uR[j]/cfg.dx + vT[i]/cfg.dy
+   153                                               # Interior Points (Zeroed to match q dimensions 
+   154                                               #for j in range(1,cfg.ny-1):
+   155                                               #    for i in range(1,cfg.nx-1):
+   156                                               #        bcD[cfg.p[i,j]] = 0
+   157                                               
+   158        20         23.0      1.1      0.5      return bcD
+
+Total time: 5.91066 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: laplace at line 160
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   160                                           @profile
+   161                                           def laplace(q, pinned=True):
+   162                                               
+   163      2716      14757.0      5.4      0.2      Lq = np.zeros(cfg.q_size)
+   164                                           
+   165                                               # NOTE: coeff. = 3 are for ghost cell terms (e.g. (2*uBC - 3*u[i,1] + u[i,2]) / cfg.dy^2
+   166                                               # U-COMPONENT
+   167                                               # Bottom Row
+   168      5432       6944.0      1.3      0.1      for j in [0]:
+   169      5432       6389.0      1.2      0.1          for i in [0]:
+   170      5432      13890.0      2.6      0.2              Lq[cfg.u[i,j]] = ( q[cfg.u[i+1,j]] - 2*q[cfg.u[i,j]]               ) / cfg.dx**2 \
+   171      2716       6543.0      2.4      0.1                         + ( q[cfg.u[i,j+1]] - 2*q[cfg.u[i,j]]               ) / cfg.dy**2
+   172                                                                  #                             + q[cfg.u[i-1,j]]   / cfg.dx**2
+   173                                                                  #                             + q[cfg.u[i,j-1]]   / cfg.dy**2
+   174     27160      32031.0      1.2      0.5          for i in range(1,cfg.nx-2):
+   175     48888      95582.0      2.0      1.6              Lq[cfg.u[i,j]] = ( q[cfg.u[i+1,j]] - 2*q[cfg.u[i,j]] + q[cfg.u[i-1,j]] ) / cfg.dx**2 \
+   176     24444      50967.0      2.1      0.9                         + ( q[cfg.u[i,j+1]] - 2*q[cfg.u[i,j]]               ) / cfg.dy**2
+   177                                                                  #                             + q[cfg.u[i,j-1]]   / cfg.dy**2
+   178      5432       6927.0      1.3      0.1          for i in [cfg.nx-2]:
+   179      5432      11604.0      2.1      0.2              Lq[cfg.u[i,j]] = (             - 2*q[cfg.u[i,j]] + q[cfg.u[i-1,j]] ) / cfg.dx**2 \
+   180      2716       5670.0      2.1      0.1                         + ( q[cfg.u[i,j+1]] - 2*q[cfg.u[i,j]]               ) / cfg.dy**2
+   181                                                                  #   q[cfg.u[i+1,j]]                               / cfg.dx**2
+   182                                                                  #                             + q[cfg.u[i,j-1]]   / cfg.dy**2 
+   183                                               # Top Row
+   184      5432       6781.0      1.2      0.1      for j in [cfg.ny-1]:
+   185      5432       6394.0      1.2      0.1          for i in [0]:
+   186      5432      10052.0      1.9      0.2              Lq[cfg.u[i,j]] = ( q[cfg.u[i+1,j]] - 2*q[cfg.u[i,j]]               ) / cfg.dx**2 \
+   187      2716       5830.0      2.1      0.1                         + (             - 2*q[cfg.u[i,j]] + q[cfg.u[i,j-1]] ) / cfg.dy**2
+   188                                                                  #                             + q[cfg.u[i-1,j]]   / cfg.dx**2
+   189                                                                  #   q[cfg.u[i,j+1]]                               / cfg.dy**2
+   190     27160      32771.0      1.2      0.6          for i in range(1,cfg.nx-2):
+   191     48888      95481.0      2.0      1.6              Lq[cfg.u[i,j]] = ( q[cfg.u[i+1,j]] - 2*q[cfg.u[i,j]] + q[cfg.u[i-1,j]] ) / cfg.dx**2 \
+   192     24444      53605.0      2.2      0.9                         + (             - 2*q[cfg.u[i,j]] + q[cfg.u[i,j-1]] ) / cfg.dy**2
+   193                                                                  #   q[cfg.u[i,j+1]]                               / cfg.dy**2
+   194      5432       7127.0      1.3      0.1          for i in [cfg.nx-2]:
+   195      5432      10497.0      1.9      0.2              Lq[cfg.u[i,j]] = (             - 2*q[cfg.u[i,j]] + q[cfg.u[i-1,j]] ) / cfg.dx**2 \
+   196      2716       5829.0      2.1      0.1                         + (             - 2*q[cfg.u[i,j]] + q[cfg.u[i,j-1]] ) / cfg.dy**2
+   197                                                                  #   q[cfg.u[i+1,j]]                               / cfg.dx**2
+   198                                                                  #   q[cfg.u[i,j+1]]                               / cfg.dy**2 
+   199                                           
+   200                                               # Interior Points
+   201     29876      35915.0      1.2      0.6      for j in range(1,cfg.ny-1):
+   202     54320      64527.0      1.2      1.1          for i in [0]:
+   203     54320     105850.0      1.9      1.8              Lq[cfg.u[i,j]] = ( q[cfg.u[i+1,j]] - 2*q[cfg.u[i,j]]               ) / cfg.dx**2 \
+   204     27160      71127.0      2.6      1.2                         + ( q[cfg.u[i,j+1]] - 2*q[cfg.u[i,j]] + q[cfg.u[i,j-1]] ) / cfg.dy**2
+   205                                                                  #                             + q[cfg.u[i-1,j]]   / cfg.dx**2
+   206    271600     332485.0      1.2      5.6          for i in range(1,cfg.nx-2):
+   207    488880     995529.0      2.0     16.8              Lq[cfg.u[i,j]] = ( q[cfg.u[i+1,j]] - 2*q[cfg.u[i,j]] + q[cfg.u[i-1,j]] ) / cfg.dx**2 \
+   208    244440     593321.0      2.4     10.0                         + ( q[cfg.u[i,j+1]] - 2*q[cfg.u[i,j]] + q[cfg.u[i,j-1]] ) / cfg.dy**2
+   209     54320      70985.0      1.3      1.2          for i in [cfg.nx-2]:
+   210     54320     104591.0      1.9      1.8              Lq[cfg.u[i,j]] = (             - 2*q[cfg.u[i,j]] + q[cfg.u[i-1,j]] ) / cfg.dx**2 \
+   211     27160      66971.0      2.5      1.1                         + ( q[cfg.u[i,j+1]] - 2*q[cfg.u[i,j]] + q[cfg.u[i,j-1]] ) / cfg.dy**2
+   212                                                                  #   q[cfg.u[i+1,j]]                               / cfg.dx**2
+   213                                               
+   214                                               # V-COMPONENT
+   215                                           
+   216                                               # Bottom Row
+   217      5432       6716.0      1.2      0.1      for j in [0]:
+   218      5432       6548.0      1.2      0.1          for i in [0]:
+   219      5432      15206.0      2.8      0.3              Lq[cfg.v[i,j]] = ( q[cfg.v[i+1,j]] - 2*q[cfg.v[i,j]]               ) / cfg.dx**2 \
+   220      2716       6730.0      2.5      0.1                         + ( q[cfg.v[i,j+1]] - 2*q[cfg.v[i,j]]               ) / cfg.dy**2
+   221                                                                  #                             + q[cfg.v[i-1,j]]   / cfg.dx**2
+   222                                                                  #                             + q[cfg.v[i,j-1]]   / cfg.dy**2
+   223     29876      36271.0      1.2      0.6          for i in range(1,cfg.nx-1):
+   224     54320     111016.0      2.0      1.9              Lq[cfg.v[i,j]] = ( q[cfg.v[i+1,j]] - 2*q[cfg.v[i,j]] + q[cfg.v[i-1,j]] ) / cfg.dx**2 \
+   225     27160      57682.0      2.1      1.0                         + ( q[cfg.v[i,j+1]] - 2*q[cfg.v[i,j]]               ) / cfg.dy**2
+   226                                                                  #                             + q[cfg.v[i,j-1]]   / cfg.dy**2
+   227      5432       7269.0      1.3      0.1          for i in [cfg.nx-1]:
+   228      5432      11155.0      2.1      0.2              Lq[cfg.v[i,j]] = (             - 2*q[cfg.v[i,j]] + q[cfg.v[i-1,j]] ) / cfg.dx**2 \
+   229      2716       5906.0      2.2      0.1                         + ( q[cfg.v[i,j+1]] - 2*q[cfg.v[i,j]]               ) / cfg.dy**2
+   230                                                                  #   q[cfg.v[i+1,j]]                               / cfg.dx**2
+   231                                                                  #                             + q[cfg.v[i,j-1]]   / cfg.dy**2 
+   232                                               # Top Row
+   233      5432       6960.0      1.3      0.1      for j in [cfg.ny-2]:
+   234      5432       6538.0      1.2      0.1          for i in [0]:
+   235      5432      10789.0      2.0      0.2              Lq[cfg.v[i,j]] = ( q[cfg.v[i+1,j]] - 2*q[cfg.v[i,j]]               ) / cfg.dx**2 \
+   236      2716       5923.0      2.2      0.1                         + (             - 2*q[cfg.v[i,j]] + q[cfg.v[i,j-1]] ) / cfg.dy**2
+   237                                                                  #                             + q[cfg.v[i-1,j]]   / cfg.dx**2
+   238                                                                  #   q[cfg.v[i,j+1]]                               / cfg.dy**2
+   239     29876      36460.0      1.2      0.6          for i in range(1,cfg.nx-1):
+   240     54320     111334.0      2.0      1.9              Lq[cfg.v[i,j]] = ( q[cfg.v[i+1,j]] - 2*q[cfg.v[i,j]] + q[cfg.v[i-1,j]] ) / cfg.dx**2 \
+   241     27160      58556.0      2.2      1.0                         + (             - 2*q[cfg.v[i,j]] + q[cfg.v[i,j-1]] ) / cfg.dy**2
+   242                                                                  #   q[cfg.v[i,j+1]]                               / cfg.dy**2
+   243      5432       7382.0      1.4      0.1          for i in [cfg.nx-1]:
+   244      5432      10185.0      1.9      0.2              Lq[cfg.v[i,j]] = (             - 2*q[cfg.v[i,j]] + q[cfg.v[i-1,j]] ) / cfg.dx**2 \
+   245      2716       5722.0      2.1      0.1                         + (             - 2*q[cfg.v[i,j]] + q[cfg.v[i,j-1]] ) / cfg.dy**2
+   246                                                                  #   q[cfg.v[i+1,j]]                               / cfg.dx**2
+   247                                                                  #   q[cfg.v[i,j+1]]                               / cfg.dy**2 
+   248                                               # Interior Points
+   249     27160      34406.0      1.3      0.6      for j in range(1,cfg.ny-2):
+   250     48888      59452.0      1.2      1.0          for i in [0]:
+   251     48888      93501.0      1.9      1.6              Lq[cfg.v[i,j]] = ( q[cfg.v[i+1,j]] - 2*q[cfg.v[i,j]]               ) / cfg.dx**2 \
+   252     24444      60867.0      2.5      1.0                         + ( q[cfg.v[i,j+1]] - 2*q[cfg.v[i,j]] + q[cfg.v[i,j-1]] ) / cfg.dy**2
+   253                                                                  #                             + q[cfg.v[i-1,j]]   / cfg.dx**2
+   254    268884     335335.0      1.2      5.7          for i in range(1,cfg.nx-1):
+   255    488880    1026456.0      2.1     17.4              Lq[cfg.v[i,j]] = ( q[cfg.v[i+1,j]] - 2*q[cfg.v[i,j]] + q[cfg.v[i-1,j]] ) / cfg.dx**2 \
+   256    244440     611304.0      2.5     10.3                         + ( q[cfg.v[i,j+1]] - 2*q[cfg.v[i,j]] + q[cfg.v[i,j-1]] ) / cfg.dy**2
+   257     48888      66554.0      1.4      1.1          for i in [cfg.nx-1]:
+   258     48888      96461.0      2.0      1.6              Lq[cfg.v[i,j]] = (             - 2*q[cfg.v[i,j]] + q[cfg.v[i-1,j]] ) / cfg.dx**2 \
+   259     24444      71722.0      2.9      1.2                         + ( q[cfg.v[i,j+1]] - 2*q[cfg.v[i,j]] + q[cfg.v[i,j-1]] ) / cfg.dy**2
+   260                                                                  #   q[cfg.v[i+1,j]]                               / cfg.dx**2
+   261                                           
+   262                                           
+   263      2716       3283.0      1.2      0.1      return Lq
+
+Total time: 0.031534 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: bclap at line 265
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   265                                           @profile
+   266                                           def bclap(q, qbc, pinned=True):
+   267                                               
+   268        21        273.0     13.0      0.9      bcL = np.zeros(cfg.q_size)
+   269                                               
+   270                                           
+   271        21         51.0      2.4      0.2      uB, uL, uR, uT = qbc["uB"], qbc["uL"], qbc["uR"], qbc["uT"]
+   272        21         34.0      1.6      0.1      vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
+   273                                               
+   274                                               # U-COMPONENT
+   275                                           
+   276                                               # Bottom Row 
+   277        42         67.0      1.6      0.2      for j in [0]:
+   278                                                   # BC + Ghost Cell
+   279        42         58.0      1.4      0.2          for i in [0]:
+   280                                                       
+   281        21        103.0      4.9      0.3              uB_ghost2 = (2*uB[i] - q[cfg.u[i,j]]) # 2-pt. stencil
+   282        21         84.0      4.0      0.3              uB_ghost3 = (8*uB[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j+1]]) / 3. # 3-pt. stencil
+   283        21         63.0      3.0      0.2              uB_ghost4 = (16*uB[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j+1]] - q[cfg.u[i,j+2]]) / 5. # 4-pt. stencil
+   284                                                       
+   285        21         75.0      3.6      0.2              bcL[cfg.u[i,j]] = uL[j] / cfg.dx**2 +  uB_ghost4 / cfg.dy**2
+   286                                                   
+   287                                                   # Ghost Cell
+   288       210        311.0      1.5      1.0          for i in range(1,cfg.nx-2):
+   289                                                       
+   290       189        367.0      1.9      1.2              uB_ghost2 = (2*uB[i] - q[cfg.u[i,j]]) # 2-pt. stencil
+   291       189        436.0      2.3      1.4              uB_ghost3 = (8*uB[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j+1]]) / 3. # 3-pt. stencil
+   292       189        575.0      3.0      1.8              uB_ghost4 = (16*uB[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j+1]] - q[cfg.u[i,j+2]]) / 5. # 4-pt. stencil
+   293                                                       
+   294       189        397.0      2.1      1.3              bcL[cfg.u[i,j]] = uB_ghost4 / cfg.dy**2
+   295                                                   
+   296                                                   # BC + Ghost Cell
+   297        42         75.0      1.8      0.2          for i in [cfg.nx-2]:
+   298                                                       
+   299        21         54.0      2.6      0.2              uB_ghost2 = (2*uB[i] - q[cfg.u[i,j]]) # 2-pt. stencil
+   300        21         62.0      3.0      0.2              uB_ghost3 = (8*uB[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j+1]]) / 3. # 3-pt. stencil
+   301        21        125.0      6.0      0.4              uB_ghost4 = (16*uB[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j+1]] - q[cfg.u[i,j+2]]) / 5. # 4-pt. stencil
+   302                                                       
+   303        21         95.0      4.5      0.3              bcL[cfg.u[i,j]] = uR[j] / cfg.dx**2 + uB_ghost4 / cfg.dy**2
+   304                                               
+   305                                               # Top Row
+   306        42         71.0      1.7      0.2      for j in [cfg.ny-1]:
+   307                                                   # BC + Ghost Cell
+   308        42         60.0      1.4      0.2          for i in [0]:
+   309                                                       
+   310        21         52.0      2.5      0.2              uT_ghost2 = (2*uT[i] - q[cfg.u[i,j]]) # 2-pt. stencil
+   311        21         53.0      2.5      0.2              uT_ghost3 = (8*uT[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j-1]]) / 3. # 3-pt. stencil
+   312        21         69.0      3.3      0.2              uT_ghost4 = (16*uT[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j-1]] - q[cfg.u[i,j-2]]) / 5. # 4-pt. stencil
+   313                                                       
+   314        21         53.0      2.5      0.2              bcL[cfg.u[i,j]] = uL[j] / cfg.dx**2 + uT_ghost4 / cfg.dy**2
+   315                                                   # Ghost Cell
+   316       210        312.0      1.5      1.0          for i in range(1,cfg.nx-2):
+   317                                                       
+   318       189        376.0      2.0      1.2              uT_ghost2 = (2*uT[i] - q[cfg.u[i,j]]) # 2-pt. stencil
+   319       189        620.0      3.3      2.0              uT_ghost3 = (8*uT[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j-1]]) / 3. # 3-pt. stencil
+   320       189        563.0      3.0      1.8              uT_ghost4 = (16*uT[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j-1]] - q[cfg.u[i,j-2]]) / 5. # 4-pt. stencil
+   321                                                       
+   322       189        362.0      1.9      1.1              bcL[cfg.u[i,j]] = uT_ghost4 / cfg.dy**2
+   323                                                   # BC + Ghost Cell
+   324        42         59.0      1.4      0.2          for i in [cfg.nx-2]:
+   325                                                       
+   326        21         37.0      1.8      0.1              uT_ghost2 = (2*uT[i] - q[cfg.u[i,j]]) # 2-pt. stencil
+   327        21         58.0      2.8      0.2              uT_ghost3 = (8*uT[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j-1]]) / 3. # 3-pt. stencil
+   328        21         71.0      3.4      0.2              uT_ghost4 = (16*uT[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j-1]] - q[cfg.u[i,j-2]]) / 5. # 4-pt. stencil
+   329                                                       
+   330        21         51.0      2.4      0.2              bcL[cfg.u[i,j]] = uR[j] / cfg.dx**2 + uT_ghost4 / cfg.dy**2
+   331                                               
+   332                                               # Interior Nodes (DONE)
+   333       231        361.0      1.6      1.1      for j in range(1,cfg.ny-1):
+   334                                                   # BC
+   335       420        622.0      1.5      2.0          for i in [0]:
+   336       210        449.0      2.1      1.4              bcL[cfg.u[i,j]] = uL[j] / cfg.dx**2;
+   337      2100       3305.0      1.6     10.5          for i in range(1,cfg.nx-2):
+   338      1890       3412.0      1.8     10.8              bcL[cfg.u[i,j]] = 0
+   339                                                   # BC
+   340       420        720.0      1.7      2.3          for i in [cfg.nx-2]:
+   341       210        494.0      2.4      1.6              bcL[cfg.u[i,j]] = uR[j] / cfg.dx**2; 
+   342                                               
+   343                                               # V-COMPONENT
+   344                                           
+   345                                               # Bottom Row 
+   346        42         71.0      1.7      0.2      for j in [0]:
+   347                                                   # BC + Ghost Cell
+   348        42         72.0      1.7      0.2          for i in [0]:
+   349                                                       
+   350        21         66.0      3.1      0.2              vL_ghost2 = (2*vL[j] - q[cfg.v[i,j]]) # 2-pt. stencil
+   351        21         71.0      3.4      0.2              vL_ghost3 = (8*vL[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i+1,j]]) / 3. # 3-pt. stencil
+   352        21         72.0      3.4      0.2              vL_ghost4 = (16*vL[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i+1,j]] - q[cfg.v[i+2,j]]) / 5. # 4-pt. stencil
+   353                                                       
+   354        21         65.0      3.1      0.2              bcL[cfg.v[i,j]] = vL_ghost4 / cfg.dx**2 + vB[i] / cfg.dy**2;
+   355                                                   # BC
+   356       231        370.0      1.6      1.2          for i in range(1,cfg.nx-1):
+   357       210        468.0      2.2      1.5              bcL[cfg.v[i,j]] = vB[i] / cfg.dy**2;
+   358                                                   # BC + Ghost Cell
+   359        42         67.0      1.6      0.2          for i in [cfg.nx-1]:
+   360                                                       
+   361        21         72.0      3.4      0.2              vR_ghost2 = (2*vR[j] - q[cfg.v[i,j]]) # 2-pt. stencil
+   362        21         56.0      2.7      0.2              vR_ghost3 = (8*vR[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i-1,j]]) / 3. # 3-pt. stencil
+   363        21         65.0      3.1      0.2              vR_ghost4 = (16*vR[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i-1,j]] - q[cfg.v[i-2,j]]) / 5. # 4-pt. stencil
+   364                                                       
+   365        21         50.0      2.4      0.2              bcL[cfg.v[i,j]] = vR_ghost4 / cfg.dx**2 + vB[i] / cfg.dy**2;
+   366                                               
+   367                                               # Top Row 
+   368        42         92.0      2.2      0.3      for j in [cfg.ny-2]:
+   369                                                   # BC + Ghost Cell
+   370        42         61.0      1.5      0.2          for i in [0]:
+   371                                                       
+   372        21         46.0      2.2      0.1              vL_ghost2 = (2*vL[j] - q[cfg.v[i,j]]) # 2-pt. stencil
+   373        21         57.0      2.7      0.2              vL_ghost3 = (8*vL[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i+1,j]]) / 3. # 3-pt. stencil
+   374        21         66.0      3.1      0.2              vL_ghost4 = (16*vL[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i+1,j]] - q[cfg.v[i+2,j]]) / 5. # 4-pt. stencil
+   375                                                       
+   376        21         58.0      2.8      0.2              bcL[cfg.v[i,j]] = vL_ghost4  / cfg.dx**2 + vT[i] / cfg.dy**2;
+   377                                                   # BC
+   378       231        379.0      1.6      1.2          for i in range(1,cfg.nx-1):
+   379       210        495.0      2.4      1.6              bcL[cfg.v[i,j]] = vT[i] / cfg.dy**2
+   380                                                   # BC + Ghost Cell
+   381        42         74.0      1.8      0.2          for i in [cfg.nx-1]:
+   382                                                       
+   383        21         54.0      2.6      0.2              vR_ghost2 = (2*vR[j] - q[cfg.v[i,j]]) # 2-pt. stencil
+   384        21         64.0      3.0      0.2              vR_ghost3 = (8*vR[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i-1,j]]) / 3. # 3-pt. stencil
+   385        21         72.0      3.4      0.2              vR_ghost4 = (16*vR[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i-1,j]] - q[cfg.v[i-2,j]]) / 5. # 4-pt. stencil
+   386                                                       
+   387        21         50.0      2.4      0.2              bcL[cfg.v[i,j]] = vR_ghost4  / cfg.dx**2 + vT[i] / cfg.dy**2;
+   388                                               
+   389                                               # Interior Nodes
+   390       210        365.0      1.7      1.2      for j in range(1,cfg.ny-2):
+   391                                                   # Ghost Cell
+   392       378        615.0      1.6      2.0          for i in [0]:
+   393                                                       
+   394       189        422.0      2.2      1.3              vL_ghost2 = (2*vL[j] - q[cfg.v[i,j]]) # 2-pt. stencil
+   395       189        552.0      2.9      1.8              vL_ghost3 = (8*vL[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i+1,j]]) / 3. # 3-pt. stencil
+   396       189        639.0      3.4      2.0              vL_ghost4 = (16*vL[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i+1,j]] - q[cfg.v[i+2,j]]) / 5. # 4-pt. stencil
+   397                                                       
+   398       189        393.0      2.1      1.2              bcL[cfg.v[i,j]] =  vL_ghost4 / cfg.dx**2;
+   399                                                   
+   400      2079       3246.0      1.6     10.3          for i in range(1,cfg.nx-1):
+   401      1890       3889.0      2.1     12.3              bcL[cfg.v[i,j]] =  0
+   402                                                   # Ghost Cell
+   403       378        621.0      1.6      2.0          for i in [cfg.nx-1]:
+   404                                                       
+   405       189        426.0      2.3      1.4              vR_ghost2 = (2*vR[j] - q[cfg.v[i,j]]) # 2-pt. stencil
+   406       189        528.0      2.8      1.7              vR_ghost3 = (8*vR[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i-1,j]]) / 3. # 3-pt. stencil
+   407       189        673.0      3.6      2.1              vR_ghost4 = (16*vR[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i-1,j]] - q[cfg.v[i-2,j]]) / 5. # 4-pt. stencil
+   408                                                       
+   409       189        463.0      2.4      1.5              bcL[cfg.v[i,j]] =  vR_ghost4 / cfg.dx**2;
+   410                                           
+   411        21         34.0      1.6      0.1      return bcL
+
+Total time: 0.333986 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: adv at line 413
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   413                                           @profile
+   414                                           def adv(q, qbc, pinned=True):
+   415                                               
+   416        40        366.0      9.2      0.1      advq = np.zeros(cfg.q_size)
+   417                                               
+   418        40         98.0      2.5      0.0      uB, uL, uR, uT = qbc["uB"], qbc["uL"], qbc["uR"], qbc["uT"]
+   419        40         78.0      1.9      0.0      vB, vL, vR, vT = qbc["vB"], qbc["vL"], qbc["vR"], qbc["vT"]
+   420                                           
+   421                                               # Nx(i,j) -> u
+   422                                               # Interpolation Operations, _uy_vx (cell vertices) and _ux_ux (cell centers)
+   423                                               # Difference Operations, del_x, del_y
+   424       520        932.0      1.8      0.3      for j in range(0, cfg.ny):
+   425      5760      10099.0      1.8      3.0          for i in range(0, cfg.nx-1): # Interior
+   426                                                       
+   427      5280       8830.0      1.7      2.6              if i == 0: # Left Wall
+   428       960       2245.0      2.3      0.7                  _ux_ux_ = -(0.5*(uL[j]       + q[cfg.u[i,j]]))**2  \
+   429       480       1301.0      2.7      0.4                          +  (0.5*(q[cfg.u[i,j]]   + q[cfg.u[i+1,j]]))**2 
+   430      4800       8466.0      1.8      2.5              elif i == cfg.nx-2: # Right Wall    
+   431       960       2236.0      2.3      0.7                  _ux_ux_ = -(0.5*(q[cfg.u[i-1,j]] + q[cfg.u[i,j]]))**2  \
+   432       480       1281.0      2.7      0.4                          +  (0.5*(q[cfg.u[i,j]]   + uR[j]))**2 
+   433                                                       else: # Interior
+   434      8640      19478.0      2.3      5.8                  _ux_ux_ = -(0.5*(q[cfg.u[i-1,j]] + q[cfg.u[i,j]]))**2  \
+   435      4320      11348.0      2.6      3.4                          +  (0.5*(q[cfg.u[i,j]]   + q[cfg.u[i+1,j]]))**2 
+   436                                                       
+   437      5280       8942.0      1.7      2.7              if j == 0: # Bottom Wall
+   438                                                           
+   439       440       1845.0      4.2      0.6                  uB_ghost2 = 2*uB[i] - q[cfg.u[i,j]] # 2-pt stencil
+   440       440       2026.0      4.6      0.6                  uB_ghost3 = (8*uB[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j+1]]) / 3. # 3-pt stencil
+   441       440       1878.0      4.3      0.6                  uB_ghost4 = (16*uB[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j+1]] - q[cfg.u[i,j+2]]) / 5. # 4-pt stencil
+   442                                                           
+   443       880       2097.0      2.4      0.6                  _vx_uy_ = -0.5*(vB[i] + vB[i+1])             * 0.5*(uB_ghost4   + q[cfg.u[i,j]]) \
+   444       440       3190.0      7.2      1.0                          +  0.5*(q[cfg.v[i,j]] + q[cfg.v[i+1,j]])     * 0.5*(q[cfg.u[i,j]]   + q[cfg.u[i,j+1]]) 
+   445                                                       
+   446      4840       8604.0      1.8      2.6              elif j == cfg.ny-1: # Top Wall
+   447                                                           
+   448       440       1098.0      2.5      0.3                  uT_ghost2 = 2*uT[i] - q[cfg.u[i,j]] # 2-pt stencil
+   449       440       1351.0      3.1      0.4                  uT_ghost3 = (8*uT[i] - 6*q[cfg.u[i,j]] + q[cfg.u[i,j-1]]) / 3. # 3-pt stencil
+   450       440       1507.0      3.4      0.5                  uT_ghost4 = (16*uT[i] - 15*q[cfg.u[i,j]] + 5*q[cfg.u[i,j-1]] - q[cfg.u[i,j-2]]) / 5. # 4-pt stencil
+   451                                                           
+   452       880       2194.0      2.5      0.7                  _vx_uy_ = -0.5*(q[cfg.v[i,j-1]] + q[cfg.v[i+1,j-1]]) * 0.5*(q[cfg.u[i,j-1]] + q[cfg.u[i,j]]) \
+   453       440       1188.0      2.7      0.4                          +  0.5*(vT[i] + vT[i+1])             * 0.5*(q[cfg.u[i,j]]   + uT_ghost4)
+   454                                                           
+   455                                                       else: # Interior
+   456      8800      21569.0      2.5      6.5                  _vx_uy_ = -0.5*(q[cfg.v[i,j-1]] + q[cfg.v[i+1,j-1]]) * 0.5*(q[cfg.u[i,j-1]] + q[cfg.u[i,j]]) \
+   457      4400      13622.0      3.1      4.1                          +  0.5*(q[cfg.v[i,j]]   + q[cfg.v[i+1,j]])   * 0.5*(q[cfg.u[i,j]]   + q[cfg.u[i,j+1]]) 
+   458                                                       
+   459      5280      10126.0      1.9      3.0              del_y_vx_uy = _vx_uy_ / cfg.dy
+   460      5280       9772.0      1.9      2.9              del_x_ux_ux = _ux_ux_ / cfg.dx
+   461                                                       
+   462      5280      11460.0      2.2      3.4              advq[cfg.u[i,j]] = del_x_ux_ux + del_y_vx_uy
+   463                                                   
+   464                                           
+   465                                               # Ny(i,j) -> v
+   466                                               # Interpolation Operations, _uy_vx (cell vertices) and _vy_vy (cell centers)
+   467       480        918.0      1.9      0.3      for j in range(0, cfg.ny-1):
+   468      5720       9799.0      1.7      2.9          for i in range(0, cfg.nx):
+   469                                                       
+   470      5280       8990.0      1.7      2.7              if i == 0: # Left Wall
+   471                                                           
+   472       440       1123.0      2.6      0.3                  vL_ghost2 = 2*vL[j] - q[cfg.v[i,j]] # 2-pt stencil
+   473       440       1309.0      3.0      0.4                  vL_ghost3 = (8*vL[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i+1,j]]) / 3. # 3-pt stencil
+   474       440       1546.0      3.5      0.5                  vL_ghost4 = (16*vL[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i+1,j]] - q[cfg.v[i+2,j]]) / 5. # 4-pt stencil
+   475                                                           
+   476       880       1951.0      2.2      0.6                  _uy_vx_ = -0.5*(uL[j]       + uL[j+1])       * 0.5*(vL_ghost4 + q[cfg.v[i,j]]) \
+   477       440       1248.0      2.8      0.4                          +  0.5*(q[cfg.u[i,j]]   + q[cfg.u[i,j+1]])   * 0.5*(q[cfg.v[i,j]]   + q[cfg.v[i+1,j]]) 
+   478                                                       
+   479      4840       8631.0      1.8      2.6              elif i == cfg.nx-1: # Right Wall
+   480                                                           
+   481       440       1087.0      2.5      0.3                  vR_ghost2 = 2*vR[j] - q[cfg.v[i,j]] # 2-pt stencil
+   482       440       1209.0      2.7      0.4                  vR_ghost3 = (8*vR[j] - 6*q[cfg.v[i,j]] + q[cfg.v[i-1,j]]) / 3. # 3-pt stencil
+   483       440       1457.0      3.3      0.4                  vR_ghost4 = (16*vR[j] - 15*q[cfg.v[i,j]] + 5*q[cfg.v[i-1,j]] - q[cfg.v[i-2,j]]) / 5. # 4-pt stencil
+   484                                           
+   485       880       2220.0      2.5      0.7                  _uy_vx_ = -0.5*(q[cfg.u[i-1,j]] + q[cfg.u[i-1,j+1]]) * 0.5*(q[cfg.v[i-1,j]] + q[cfg.v[i,j]]) \
+   486       440       1103.0      2.5      0.3                          +  0.5*(uR[j] + uR[j+1])             * 0.5*(q[cfg.v[i,j]]   + vR_ghost4) 
+   487                                                           
+   488                                                       else: 
+   489      8800      22291.0      2.5      6.7                  _uy_vx_ = -0.5*(q[cfg.u[i-1,j]] + q[cfg.u[i-1,j+1]]) * 0.5*(q[cfg.v[i-1,j]] + q[cfg.v[i,j]]) \
+   490      4400      13356.0      3.0      4.0                          +  0.5*(q[cfg.u[i,j]]   + q[cfg.u[i,j+1]])   * 0.5*(q[cfg.v[i,j]]   + q[cfg.v[i+1,j]]) 
+   491                                                       
+   492      5280       8809.0      1.7      2.6              if j == 0: # Bottom Wall
+   493       960       2100.0      2.2      0.6                  _vy_vy_ = -(0.5*(vB[i]       + q[cfg.v[i,j]]))**2  \
+   494       480       1207.0      2.5      0.4                          +  (0.5*(q[cfg.v[i,j]]   + q[cfg.v[i,j+1]]))**2 
+   495      4800       8514.0      1.8      2.5              elif j == cfg.ny-2: # Top Wall
+   496       960       2798.0      2.9      0.8                  _vy_vy_ = -(0.5*(q[cfg.v[i,j-1]] + q[cfg.v[i,j]]))**2  \
+   497       480       1267.0      2.6      0.4                          +  (0.5*(q[cfg.v[i,j]]   + vT[i]))**2 
+   498                                                       else: # Interior
+   499      8640      19950.0      2.3      6.0                  _vy_vy_ = -(0.5*(q[cfg.v[i,j-1]] + q[cfg.v[i,j]]))**2  \
+   500      4320      11443.0      2.6      3.4                          +  (0.5*(q[cfg.v[i,j]]   + q[cfg.v[i,j+1]]))**2 
+   501                                                       
+   502      5280       9988.0      1.9      3.0              del_x_uy_vx = _uy_vx_ / cfg.dx
+   503      5280       9480.0      1.8      2.8              del_y_vy_vy = _vy_vy_ / cfg.dy
+   504                                           
+   505      5280      10890.0      2.1      3.3              advq[cfg.v[i,j]] = del_x_uy_vx + del_y_vy_vy
+   506                                           
+   507        40         75.0      1.9      0.0      return advq
+
+Total time: 0.06829 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: S at line 509
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   509                                           @profile
+   510                                           def S(q, alpha = 0.5, pinned=True):
+   511                                               
+   512        20      67659.0   3382.9     99.1      Lq = laplace(q, pinned=False)
+   513        20         32.0      1.6      0.0      a = (alpha*cfg.dt)/cfg.Re
+   514        20        406.0     20.3      0.6      I = np.ones(Lq.shape)
+   515        20        168.0      8.4      0.2      Sq = np.add(q, np.multiply(a, Lq))
+   516                                           
+   517        20         25.0      1.2      0.0      return Sq
+
+Total time: 0.409604 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: R at line 519
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   519                                           @profile
+   520                                           def R(q, alpha=0.5, pinned=True):
+   521                                               
+   522       120     406030.0   3383.6     99.1      Lq = laplace(q, pinned=False)
+   523       120        209.0      1.7      0.1      a = (alpha*cfg.dt)/cfg.Re
+   524       120       2170.0     18.1      0.5      I = np.ones(Lq.shape)
+   525       120       1044.0      8.7      0.3      Rq = np.subtract(q, np.multiply(a, Lq))
+   526                                               
+   527       120        151.0      1.3      0.0      return Rq
+
+Total time: 9.11919 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/discrete_operators.py
+Function: Rinv at line 529
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   529                                           @profile
+   530                                           def Rinv(q, alpha = 0.5, pinned=True):
+   531                                               
+   532      1288    4529702.0   3516.8     49.7      Lq = laplace(q, pinned=False)
+   533      1288    4533126.0   3519.5     49.7      Lq2 = laplace(Lq, pinned=False)
+   534      1288       2451.0      1.9      0.0      a = (alpha*cfg.dt)/cfg.Re
+   535      1288       1917.0      1.5      0.0      a2 = a**2
+   536      1288      27781.0     21.6      0.3      I = np.ones(Lq.shape)
+   537                                               
+   538                                               # Taylor Series Expansion
+   539      1288       8124.0      6.3      0.1      term1 = np.multiply(I, q)
+   540      1288       5438.0      4.2      0.1      term2 = np.multiply(a, Lq)
+   541      1288       3314.0      2.6      0.0      term3 = np.multiply(a2, Lq2)
+   542      1288       5779.0      4.5      0.1      Rinvq = np.add(np.add(term1, term2), term3)
+   543                                           
+   544      1288       1559.0      1.2      0.0      return Rinvq
+
+Total time: 13.9085 s
+File: /mnt/c/Users/sheha/Desktop/250H/MAE-250H/matrix_solvers.py
+Function: Atimes at line 15
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    15                                           @profile
+    16                                           def Atimes(x, b, eqn, pinned=False, **kwargs):
+    17                                               
+    18        40         82.0      2.0      0.0      i = 1
+    19        40         83.0      2.1      0.0      imax = 5000
+    20        40         70.0      1.8      0.0      eps = 1e-6
+    21                                               
+    22        40         58.0      1.4      0.0      if eqn == 0: # Test Matrix
+    23                                                   if "A" not in [*kwargs]:
+    24                                                       raise("Must specify matrix variable 'A'.")
+    25                                                   A = kwargs["A"]
+    26                                                   Ax = np.dot(A, x)
+    27        40         58.0      1.4      0.0      elif eqn == 1: # Momentum Eq.
+    28                                                   Ax = op.R(x)
+    29        40         50.0      1.2      0.0      elif eqn == 2: # Pressure Poisson Eq.
+    30        20      31322.0   1566.1      0.2          GP_np1 = op.grad(x) 
+    31        20     133828.0   6691.4      1.0          RinvGP_np1 = op.Rinv(GP_np1)
+    32        20      39396.0   1969.8      0.3          DRinvGP_np1 = op.div(RinvGP_np1)
+    33        20        162.0      8.1      0.0          Ax = np.multiply(-1., DRinvGP_np1)
+    34        20         28.0      1.4      0.0      elif eqn == 3: # Diffusion Eq.
+    35        20      73347.0   3667.3      0.5          Ax = op.R(x, pinned=False)
+    36                                               
+    37        40        172.0      4.3      0.0      r = np.subtract(b, Ax)
+    38        40         60.0      1.5      0.0      d = r
+    39        40        625.0     15.6      0.0      del_new = np.dot(r.T, r)
+    40        40         65.0      1.6      0.0      del0 = del_new
+    41                                               
+    42        40         99.0      2.5      0.0      del_new_vals = []
+    43        40        105.0      2.6      0.0      del_new_vals.append(del_new)
+    44                                               
+    45      1328       4657.0      3.5      0.0      while (i < imax) and (del_new > eps**2*del0):
+    46                                                   
+    47      1288       1992.0      1.5      0.0          if (i % 500) == 0:
+    48                                                       print('Iteration No: %d' % (i))
+    49                                                       print('del_new = %.3e' % (del_new))
+    50                                           
+    51      1288       1862.0      1.4      0.0          if eqn == 0:
+    52                                                       q = np.dot(A, d)
+    53      1288       1842.0      1.4      0.0          elif eqn == 1: # Mo. Eq.
+    54                                                       Ad = op.R(d)
+    55                                                       q = Ad
+    56      1288       1840.0      1.4      0.0          elif eqn == 2: # PP Eq.
+    57      1208    2002771.0   1657.9     14.4              GP_np1 = op.grad(d) 
+    58      1208    8602828.0   7121.5     61.9              RinvGP_np1 = op.Rinv(GP_np1)
+    59      1208    2177934.0   1802.9     15.7              DRinvGP_np1 = op.div(RinvGP_np1)
+    60      1208      13573.0     11.2      0.1              Ad = np.multiply(-1., DRinvGP_np1)
+    61      1208       2752.0      2.3      0.0              q = Ad
+    62        80        120.0      1.5      0.0          elif eqn == 3: # Diff. Eq.
+    63        80     271955.0   3399.4      2.0              Ad = op.R(d, pinned=False)
+    64        80        135.0      1.7      0.0              q = Ad
+    65                                           
+    66      1288      25660.0     19.9      0.2          alpha_cg = np.divide( del_new , np.dot(d.T, q) )
+    67      1288       6870.0      5.3      0.0          x = np.add(x , np.multiply(alpha_cg,d))
+    68                                                    
+    69      1288       2555.0      2.0      0.0          if (i % 50) == 0:
+    70        20         28.0      1.4      0.0              if eqn == 0: # Test Matrix
+    71                                                           r = np.subtract(b, np.dot(A, x))
+    72        20         29.0      1.4      0.0              elif eqn == 1: # Mo. Eq.
+    73                                                           Ax = op.R(x)
+    74                                                           r = np.subtract(b, Ax)
+    75        20         30.0      1.5      0.0              elif eqn == 2: # PP Eq.
+    76        20      33522.0   1676.1      0.2                  GP_np1 = op.grad(x) 
+    77        20     139378.0   6968.9      1.0                  RinvGP_np1 = op.Rinv(GP_np1)
+    78        20      34181.0   1709.0      0.2                  DRinvGP_np1 = op.div(RinvGP_np1)
+    79        20        193.0      9.7      0.0                  Ax = np.multiply(-1., DRinvGP_np1)
+    80        20        110.0      5.5      0.0                  r = np.subtract(b, Ax)
+    81                                                       elif eqn == 3: # Diff. Eq.
+    82                                                           Ax = op.R(x, pinned=False)
+    83                                                           r = np.subtract(b, Ax)
+    84                                                   else:
+    85      1268       5922.0      4.7      0.0              r = np.subtract(r , np.multiply(alpha_cg,q))
+    86      1288       1873.0      1.5      0.0          del_old = del_new
+    87      1288       6592.0      5.1      0.0          del_new = np.dot(r.T, r)
+    88      1288       2739.0      2.1      0.0          del_new_vals.append(del_new)
+    89      1288       2178.0      1.7      0.0          beta = del_new / del_old
+    90                                                   
+    91      1288       7284.0      5.7      0.1          d = np.add(r , beta*d)
+    92      1288       2126.0      1.7      0.0          i += 1
+    93                                                
+    94        40         56.0      1.4      0.0      if eqn == 0: # Test Matrix
+    95                                                   Ax = np.dot(A, x)
+    96        40         59.0      1.5      0.0      elif eqn == 1: # Mo. Eq.
+    97                                                   Ax = op.R(x) 
+    98        40         58.0      1.4      0.0      elif eqn == 2: # PP Eq.
+    99        20      31935.0   1596.8      0.2          GP_np1 = op.grad(x) 
+   100        20     139020.0   6951.0      1.0          RinvGP_np1 = op.Rinv(GP_np1)
+   101        20      35966.0   1798.3      0.3          DRinvGP_np1 = op.div(RinvGP_np1)
+   102        20        103.0      5.2      0.0          Ax = np.multiply(-1., DRinvGP_np1)
+   103        20         32.0      1.6      0.0      elif eqn == 3: # Diff. Eq.
+   104        20      66003.0   3300.2      0.5          Ax = op.R(x, pinned=False)
+   105                                               
+   106        40         69.0      1.7      0.0      if 'convIter' in kwargs:
+   107                                                   return [i, Ax]
+   108                                               else:   
+   109                                                   #plt.scatter(list(range(0,len(del_new_vals))), del_new_vals, marker='o')
+   110                                                   #plt.show()
+   111                                                   #print('CGS cnverged in %d iterations.' % (i))
+   112        40         62.0      1.6      0.0          return [x, Ax, i]
+
+Total time: 15.01 s
+File: main.py
+Function: main at line 13
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    13                                           @profile
+    14                                           def main():
+    15                                               # INITIALIZE SIMULATION DOMAIN
+    16                                               
+    17         1       2175.0   2175.0      0.0      cfg.init('inputsMAIN.txt')
+    18                                               # U Positions
+    19         1         36.0     36.0      0.0      xu = cfg.dx*(1. + np.arange(0, cfg.nx-1))
+    20         1          7.0      7.0      0.0      yu = cfg.dy*(0.5 + np.arange(0, cfg.ny)) 
+    21         1        145.0    145.0      0.0      Xu, Yu = np.meshgrid(xu, yu)
+    22                                               
+    23                                               # V Positions 
+    24         1          9.0      9.0      0.0      xv = cfg.dx*(0.5 + np.arange(0, cfg.nx))
+    25         1          6.0      6.0      0.0      yv = cfg.dy*(1.0 + np.arange(0, cfg.ny-1))
+    26         1         58.0     58.0      0.0      Xv, Yv = np.meshgrid(xv, yv)
+    27                                               
+    28                                               # IC U, V @(x,y,t=0) 
+    29         1          5.0      5.0      0.0      q_nm1 = np.zeros(cfg.q_size) 
+    30         1          2.0      2.0      0.0      qBC_nm1 = {}
+    31         1          1.0      1.0      0.0      qBC = {}
+    32                                               
+    33                                               # TIME INTEGRATION SETTINGS
+    34         1          1.0      1.0      0.0      CN = 0.5 # alpha value for crank-nicholson method
+    35                                               
+    36                                               # BC FOR n = 0
+    37                                               
+    38                                               # Top Wall BC
+    39         1         16.0     16.0      0.0      qBC_nm1["uT"] = np.ones(xu.shape)
+    40         1          5.0      5.0      0.0      qBC_nm1["vT"] = xv*0
+    41                                               # Bottom Wall BC
+    42         1          3.0      3.0      0.0      qBC_nm1["uB"] = xu*0
+    43         1          3.0      3.0      0.0      qBC_nm1["vB"] = xv*0
+    44                                               # Left Wall BC
+    45         1          3.0      3.0      0.0      qBC_nm1["uL"] = yu*0
+    46         1          4.0      4.0      0.0      qBC_nm1["vL"] = yv*0
+    47                                               # Right Wall BC
+    48         1          2.0      2.0      0.0      qBC_nm1["uR"] = yu*0
+    49         1          3.0      3.0      0.0      qBC_nm1["vR"] = yv*0
+    50                                               
+    51                                               # SOLVE FOR u(x,y,tn) 
+    52                                               
+    53                                               # BC FOR n 
+    54         1          2.0      2.0      0.0      q_n = q_nm1 
+    55         1          2.0      2.0      0.0      qBC = qBC_nm1
+    56         1       2755.0   2755.0      0.0      bcL_n = op.bclap(q_n, qBC) 
+    57                                               
+    58                                               # BEGIN TIME STEPPING-
+    59         1          5.0      5.0      0.0      start_time = time.time()
+    60         1          3.0      3.0      0.0      Nt = int(cfg.T/cfg.dt)
+    61        21         47.0      2.2      0.0      for tn in range(1, Nt+1): 
+    62                                                   
+    63                                                   # BC FOR n + 1
+    64        20         35.0      1.8      0.0          qBC_np1 = qBC
+    65        20      55219.0   2760.9      0.4          bcL_np1 = op.bclap(q_n, qBC_np1)
+    66                                                   
+    67                                                   # MOMENTUM EQUATION
+    68        20        310.0     15.5      0.0          bcL = np.multiply((CN*cfg.dt)/cfg.Re, np.add(bcL_n, bcL_np1))
+    69        20      68621.0   3431.1      0.5          Sq_n = op.S(q_n) 
+    70        20     309770.0  15488.5      2.1          Aq_nm1 = op.adv(q_nm1, qBC_nm1)
+    71        20     309302.0  15465.1      2.1          Aq_n = op.adv(q_n, qBC)
+    72        20        546.0     27.3      0.0          adv = np.multiply(-CN*cfg.dt, np.subtract(np.multiply(3, Aq_n), Aq_nm1))
+    73        20        146.0      7.3      0.0          b = Sq_n + bcL + adv
+    74                                                   
+    75        20     420035.0  21001.8      2.8          [q_F, Rq_np1, iterMo] = Atimes(np.zeros(q_n.shape), b, 3)
+    76                                                   
+    77                                                   # PRESSURE POISSON EQUATION
+    78        20      42716.0   2135.8      0.3          Du_F = op.div(q_F) + op.bcdiv(qBC) 
+    79                                                   
+    80        20        105.0      5.2      0.0          ppe_rhs = np.multiply(1./cfg.dt, Du_F)
+    81        20         90.0      4.5      0.0          b2 = -ppe_rhs 
+    82                                               
+    83        20   13534555.0 676727.8     90.2          [P_np1, Ax_PPE, iterPPE] = Atimes(np.zeros(cfg.p_size), b2, 2)
+    84                                                   
+    85                                                   # PROJECTION STEP
+    86        20      36365.0   1818.2      0.2          GP_np1 = op.grad(P_np1) 
+    87        20     133089.0   6654.4      0.9          RinvGP_np1 = op.Rinv(GP_np1)
+    88        20        107.0      5.3      0.0          q_np1 = np.subtract(q_F, np.multiply(cfg.dt, RinvGP_np1)) 
+    89                                               
+    90        20         43.0      2.1      0.0          q_nm1 = q_n
+    91        20         38.0      1.9      0.0          qBC_nm1 = qBC
+    92        20         34.0      1.7      0.0          q_n = q_np1
+    93        20         41.0      2.0      0.0          bcL_n = bcL_np1
+    94                                                   
+    95                                                   # UPDATE LOG FILE AND SAVE DATA
+    96        20       3271.0    163.6      0.0          [X, Y, U, V] = vis.getFrameData(q_n, qBC, tn*cfg.dt)
+    97                                                   
+    98        20         45.0      2.2      0.0          if tn == 1:
+    99         1         41.0     41.0      0.0              Udata = np.vstack(([U], [np.zeros(np.shape(U))]))
+   100         1         20.0     20.0      0.0              Vdata = np.vstack(([V], [np.zeros(np.shape(V))]))
+   101                                                   
+   102        19         37.0      1.9      0.0          elif tn == Nt: 
+   103         1         34.0     34.0      0.0              Udata = np.vstack((Udata, [U]))
+   104         1         17.0     17.0      0.0              Vdata = np.vstack((Vdata, [V]))
+   105                                                       
+   106         1      23529.0  23529.0      0.2              np.save(cfg.outputPath+'X_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'),X)
+   107         1       1892.0   1892.0      0.0              np.save(cfg.outputPath+'Y_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'),Y)
+   108         1       7336.0   7336.0      0.0              np.save(cfg.outputPath+'U_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'), Udata)    
+   109         1       6598.0   6598.0      0.0              np.save(cfg.outputPath+'V_Data_dt_{:.3e}'.format(cfg.dt).replace('.','p'), Vdata)    
+   110                                                   else:
+   111        18        714.0     39.7      0.0              Udata = np.vstack((Udata, [U]))
+   112        18        374.0     20.8      0.0              Vdata = np.vstack((Vdata, [V]))
+   113                                               
+   114        20         71.0      3.5      0.0          if ((tn % int(0.2*Nt)) == 0) or (tn == 1): # Print outputs every 10% of simulation or at t = 0
+   115         6      40025.0   6670.8      0.3              with open(cfg.outputPath + 'output.log', 'a+') as log:
+   116         6         98.0     16.3      0.0                  log.write('\r%(comp).1F%% complete:' %{'comp': (tn/Nt)*100})
+   117         6         97.0     16.2      0.0                  log.write('\rSimultation Time: %.3f sec (dt = %.3e)' % (tn*cfg.dt, cfg.dt))
+   118         6         40.0      6.7      0.0                  log.write('\r%(iter).d Iterations for CGS Convergence (Mo. Eq.)' %{'iter': iterMo})
+   119         6       3128.0    521.3      0.0                  log.write('\r%(iter).d Iterations for CGS Convergence (PP Eq.)\n' %{'iter': iterPPE})
+   120                                                       
+   121                                                       #vis.plot1DProfile(X, Y, U, V, tn*cfg.dt)
+   122                                                       #vis.plot2DStreamPlot(X, Y, U, V, tn*cfg.dt)
+   123                                               
+   124        20         56.0      2.8      0.0          if tn == Nt: 
+   125         1          6.0      6.0      0.0              sim_time = time.time() - start_time
+   126         1          2.0      2.0      0.0              if sim_time < 60:
+   127         1          2.0      2.0      0.0                  time_units = 'sec'
+   128                                                       elif sim_time > 60 and sim_time < 3600:
+   129                                                           sim_time = sim_time / 60
+   130                                                           time_units = 'min'
+   131                                                       elif sim_time > 3600:
+   132                                                           sim_time = sim_time / 3600
+   133                                                           time_units = 'hrs'
+   134                                               
+   135         1       5593.0   5593.0      0.0              with open(cfg.outputPath + 'output.log', 'a+') as log:
+   136         1        537.0    537.0      0.0                  log.write('\nSimulation Completed in %.3f %s\n' % (sim_time, time_units))
+

@@ -1,0 +1,18 @@
+----------------------------------------
+SIMULATION INPUTS
+2021-06-21 01:06:02.874439
+----------------------------------------
+
+nx = 128.0
+ny = 128.0
+Lx = 1.0
+Ly = 1.0
+dt = 0.005
+T = 20.0
+Re = 400.0
+CFL Number = 0.64
+----------------------------------------
+SIMULATION OUTPUTS
+----------------------------------------
+
+0.0% complete:Simultation Time: 0.005 sec (dt = 5.000e-03)8 Iterations for CGS Convergence (Mo. Eq.)620 Iterations for CGS Convergence (PP Eq.)
