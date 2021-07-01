@@ -1,0 +1,1 @@
+NOTE: Raw data is backed up on google drive for Re = 100, 400, and 1000 at nx = ny = 64 and dt = 0.01 until steady-state was achieved. 

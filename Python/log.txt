@@ -1,0 +1,9 @@
+Left off at 06/30/2021
+Next possible tasks include:
+1) Performance optimization of Python/Cython Code: 
+Some underlying bottleneck still is preventing 
+feasible computational time -- before simulating 
+anymore literature cases or higher Re, code MUST be optimized 
+2) Completing Validation for all Ghia cases at steady state 
+3) POD -- simulate Re 100 to 1000 at intervals of 100 and 
+attempt to replicate some arbitrary Re

@@ -146,7 +146,7 @@ def plot1DProfile(X, Y, U, V, time_n):
     plt.clf()
     plt.close('all')
 
-def plot2DStreamPlot(X, Y, U, V, time_n, quiverOn = True, streamOn = True, vortOn = False, save = True):
+def plot2DStreamPlot(X, Y, U, V, time_n, quiverOn = True, streamOn = True, vortOn = False, save = True, **kwargs):
     
     newFigPath = cfg.outputPath + '/Figures/'
     if not os.path.isdir(newFigPath):
@@ -183,9 +183,10 @@ def plot2DStreamPlot(X, Y, U, V, time_n, quiverOn = True, streamOn = True, vortO
         w = (V[:,1:] - V[:,0:-1])/(cfg.dx) - (U[1:, :] - U[0:-1, :])/(cfg.dy)
         fig_vorti = plt.figure()
         vort = plt.contour(X, Y, w)
-    plt.clf()
-    plt.close('all')
-
+    #img = plt.show(animated=True)
+    #plt.clf()
+    #plt.close('all')
+        return cntrf
 def plotSettings():
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
